@@ -29,35 +29,32 @@ import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.APPEARING_ANIMATION_DURATION;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.BACKGROUND_COLOR;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INDICATOR_COLOR;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INDICATOR_SIZE;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INNER_INDICATOR_COLOR;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.INDICATOR_HEIGHT;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.LINE_INDICATOR_COLOR;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.LINE_INDICATOR_WIDTH_SIZE;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.MARGIN_INDICATOR;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.MESSAGE_VIEW_PADDING;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.RADIUS_SIZE_TARGET_RECT;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.SIZE_ANIMATION_DURATION;
+import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.STROKE_CIRCLE_INDICATOR_SIZE;
+
 /**
  * Created by Mohammad Reza Eram on 20/01/2018.
  */
 
 public class GuideView extends FrameLayout {
-
-
     static final String TAG = "GuideView";
 
-    private static final int INDICATOR_HEIGHT              = 40;
-    private static final int MESSAGE_VIEW_PADDING          = 5;
-    private static final int SIZE_ANIMATION_DURATION       = 700;
-    private static final int APPEARING_ANIMATION_DURATION  = 400;
-    private static final int CIRCLE_INDICATOR_SIZE         = 6;
-    private static final int LINE_INDICATOR_WIDTH_SIZE     = 3;
-    private static final int STROKE_CIRCLE_INDICATOR_SIZE  = 3;
-    private static final int RADIUS_SIZE_TARGET_RECT       = 15;
-    private static final int MARGIN_INDICATOR              = 15;
-
-    private static final int BACKGROUND_COLOR              = 0x99000000;
-    private static final int CIRCLE_INNER_INDICATOR_COLOR  = 0xffcccccc;
-    private static final int CIRCLE_INDICATOR_COLOR        = Color.WHITE;
-    private static final int LINE_INDICATOR_COLOR          = Color.WHITE;
-
-    private final Paint selfPaint           = new Paint();
-    private final Paint paintLine           = new Paint();
-    private final Paint paintCircle         = new Paint();
-    private final Paint paintCircleInner    = new Paint();
-    private final Paint targetPaint         = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint selfPaint = new Paint();
+    private final Paint paintLine = new Paint();
+    private final Paint paintCircle = new Paint();
+    private final Paint paintCircleInner = new Paint();
+    private final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Xfermode X_FER_MODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
 
     private View target;
@@ -74,7 +71,7 @@ public class GuideView extends FrameLayout {
     private float circleIndicatorSizeFinal;
     private float circleInnerIndicatorSize = 0;
     private float lineIndicatorWidthSize;
-    private int   messageViewPadding;
+    private int messageViewPadding;
     private float marginGuide;
     private float strokeCircleWidth;
     private float indicatorHeight;
@@ -85,7 +82,9 @@ public class GuideView extends FrameLayout {
     private Gravity mGravity;
     private DismissType dismissType;
     private GuideMessageView mMessageView;
+    private Boolean showSemitransparentBackground = true;
 
+    protected Boolean isChild = false;
 
     private GuideView(Context context, View view) {
         super(context);
@@ -109,6 +108,7 @@ public class GuideView extends FrameLayout {
         addView(mMessageView, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         setMessageLocation(resolveMessageViewLocation());
+
 
         ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -200,7 +200,6 @@ public class GuideView extends FrameLayout {
         circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density;
     }
 
-
     private int getNavigationBarSize() {
         Resources resources = getContext().getResources();
         int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
@@ -220,10 +219,12 @@ public class GuideView extends FrameLayout {
         super.onDraw(canvas);
         if (target != null) {
 
-            selfPaint.setColor(BACKGROUND_COLOR);
-            selfPaint.setStyle(Paint.Style.FILL);
-            selfPaint.setAntiAlias(true);
-            canvas.drawRect(selfRect, selfPaint);
+            if (showSemitransparentBackground) {
+                selfPaint.setColor(BACKGROUND_COLOR);
+                selfPaint.setStyle(Paint.Style.FILL);
+                selfPaint.setAntiAlias(true);
+                canvas.drawRect(selfRect, selfPaint);
+            }
 
             paintLine.setStyle(Paint.Style.FILL);
             paintLine.setColor(LINE_INDICATOR_COLOR);
@@ -275,29 +276,30 @@ public class GuideView extends FrameLayout {
         float x = event.getX();
         float y = event.getY();
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            switch (dismissType) {
+        if (!isChild)
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                switch (dismissType) {
 
-                case outside:
-                    if (!isViewContains(mMessageView, x, y)) {
+                    case outside:
+                        if (!isViewContains(mMessageView, x, y)) {
+                            dismiss();
+                        }
+                        break;
+
+                    case anywhere:
                         dismiss();
-                    }
-                    break;
+                        break;
 
-                case anywhere:
-                    dismiss();
-                    break;
+                    case targetView:
+                        if (targetRect.contains(x, y)) {
+                            target.performClick();
+                            dismiss();
+                        }
+                        break;
 
-                case targetView:
-                    if (targetRect.contains(x, y)) {
-                        target.performClick();
-                        dismiss();
-                    }
-                    break;
-
+                }
+                return true;
             }
-            return true;
-        }
         return false;
     }
 
@@ -318,7 +320,7 @@ public class GuideView extends FrameLayout {
         postInvalidate();
     }
 
-    public void updateGuideViewLocation(){
+    public void updateGuideViewLocation() {
         requestLayout();
     }
 
@@ -380,7 +382,6 @@ public class GuideView extends FrameLayout {
         mMessageView.setContentText(str);
     }
 
-
     public void setContentSpan(Spannable span) {
         mMessageView.setContentSpan(span);
     }
@@ -393,16 +394,17 @@ public class GuideView extends FrameLayout {
         mMessageView.setContentTypeFace(typeFace);
     }
 
-
     public void setTitleTextSize(int size) {
         mMessageView.setTitleTextSize(size);
     }
-
 
     public void setContentTextSize(int size) {
         mMessageView.setContentTextSize(size);
     }
 
+    public void setSemitransparentBackground(Boolean show) {
+        this.showSemitransparentBackground = show;
+    }
 
     public static class Builder {
         private View targetView;
@@ -420,6 +422,7 @@ public class GuideView extends FrameLayout {
         private float circleIndicatorSize;
         private float circleInnerIndicatorSize;
         private float strokeCircleWidth;
+        private Boolean showSemitransparentBackground = true;
 
         public Builder(Context context) {
             this.context = context;
@@ -582,11 +585,16 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
+        public Builder setSemitransparentBackground(Boolean show) {
+            this.showSemitransparentBackground = show;
+            return this;
+        }
 
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
             guideView.mGravity = gravity != null ? gravity : Gravity.auto;
             guideView.dismissType = dismissType != null ? dismissType : DismissType.targetView;
+            guideView.showSemitransparentBackground = this.showSemitransparentBackground;
             float density = context.getResources().getDisplayMetrics().density;
 
             guideView.setTitle(title);

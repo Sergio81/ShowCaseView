@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
+import smartdevelop.ir.eram.showcaseviewlib.GuideWrapperView;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
@@ -31,40 +32,86 @@ public class MainActivity extends AppCompatActivity {
         view4 = findViewById(R.id.view4);
         view5 = findViewById(R.id.view5);
 
-        builder = new GuideView.Builder(this)
+//        new GuideView.Builder(this)
+//                .setTitle("Guide Title Text")
+//                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+//                .setGravity(Gravity.center)
+//                .setSemitransparentBackground(true)
+//                .setDismissType(DismissType.outside)
+//                .setTargetView(view1)
+//                .build()
+//                .show();
+
+//        builder = new GuideView.Builder(this)
+//                .setTitle("Guide Title Text")
+//                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+//                .setGravity(Gravity.center)
+//                .setSemitransparentBackground(false)
+//                .setDismissType(DismissType.outside)
+//                .setTargetView(view1)
+//                .setGuideListener(new GuideListener() {
+//                    @Override
+//                    public void onDismiss(View view) {
+//                        switch (view.getId()) {
+//                            case R.id.view1:
+//                                builder.setTargetView(view2).build();
+//                                break;
+//                            case R.id.view2:
+//                                builder.setTargetView(view3).build();
+//                                break;
+//                            case R.id.view3:
+//                                builder.setTargetView(view4).build();
+//                                break;
+//                            case R.id.view4:
+//                                builder.setTargetView(view5).build();
+//                                break;
+//                            case R.id.view5:
+//                                return;
+//                        }
+//                        mGuideView = builder.build();
+//                        mGuideView.show();
+//                    }
+//                });
+//
+//        mGuideView = builder.build();
+//        mGuideView.show();
+
+        GuideView guideView1 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
                 .setGravity(Gravity.center)
+                .setSemitransparentBackground(true)
                 .setDismissType(DismissType.outside)
                 .setTargetView(view1)
-                .setGuideListener(new GuideListener() {
-                    @Override
-                    public void onDismiss(View view) {
-                        switch (view.getId()) {
-                            case R.id.view1:
-                                builder.setTargetView(view2).build();
-                                break;
-                            case R.id.view2:
-                                builder.setTargetView(view3).build();
-                                break;
-                            case R.id.view3:
-                                builder.setTargetView(view4).build();
-                                break;
-                            case R.id.view4:
-                                builder.setTargetView(view5).build();
-                                break;
-                            case R.id.view5:
-                                return;
-                        }
-                        mGuideView = builder.build();
-                        mGuideView.show();
-                    }
-                });
+                .build();
 
-        mGuideView = builder.build();
-        mGuideView.show();
+        GuideView guideView2 = new GuideView.Builder(this)
+                .setTitle("Guide Title Text")
+                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+                .setGravity(Gravity.center)
+                .setSemitransparentBackground(true)
+                .setDismissType(DismissType.outside)
+                .setTargetView(view2)
+                .build();
 
-        updatingForDynamicLocationViews();
+        GuideView guideView3 = new GuideView.Builder(this)
+                .setTitle("Guide Title Text")
+                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+                .setGravity(Gravity.center)
+                .setSemitransparentBackground(true)
+                .setDismissType(DismissType.outside)
+                .setTargetView(view3)
+                .build();
+
+        GuideWrapperView sad = new GuideWrapperView.Builder(this)
+                .setTargetGuideView(guideView1)
+                .setTargetGuideView(guideView2)
+                .setTargetGuideView(guideView3)
+                .build();
+
+        sad.show();
+
+        //updatingForDynamicLocationViews();
     }
 
     private void updatingForDynamicLocationViews() {
