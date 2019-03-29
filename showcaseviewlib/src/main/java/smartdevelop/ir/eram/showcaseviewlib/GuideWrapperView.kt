@@ -2,16 +2,16 @@ package smartdevelop.ir.eram.showcaseviewlib
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AlphaAnimation
 import android.widget.FrameLayout
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.APPEARING_ANIMATION_DURATION
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.BACKGROUND_COLOR
+import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.RADIUS_SIZE_TARGET_RECT
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 
 class GuideWrapperView(context: Context) : FrameLayout(context) {
@@ -22,14 +22,8 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
 
     init {
         setWillNotDraw(false)
-//        viewTreeObserver.addOnGlobalLayoutListener {
-//            ViewTreeObserver.OnGlobalLayoutListener {
-//                selfRect.set(paddingLeft,
-//                        paddingTop,
-//                        width - paddingRight,
-//                        height - paddingBottom)
-//            }
-//        }
+        // this allow X_FER_MODE_CLEAR works
+        setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
         viewTreeObserver.addOnPreDrawListener(
                 object : ViewTreeObserver.OnPreDrawListener {
@@ -44,16 +38,24 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
                         return true
                     }
                 })
-
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         selfPaint.color = BACKGROUND_COLOR
         selfPaint.style = Paint.Style.FILL
         selfPaint.isAntiAlias = true
-        canvas!!.drawRect(selfRect, selfPaint)
+        canvas.drawRect(selfRect, selfPaint)
+
+        // Show the children views without the background
+        for(g:GuideView in guideViews){
+            canvas.drawRoundRect(
+                    g.targetRect,
+                    RADIUS_SIZE_TARGET_RECT.toFloat(),
+                    RADIUS_SIZE_TARGET_RECT.toFloat(),
+                    g.targetPaint)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -76,15 +78,19 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
     }
 
     fun show() {
+        val startAnimation = AlphaAnimation(0.0f, 1.0f)
+
         this.layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT)
+
         this.isClickable = false
 
         ((context as Activity).window.decorView as ViewGroup).addView(this)
-        val startAnimation = AlphaAnimation(0.0f, 1.0f)
+
         startAnimation.duration = APPEARING_ANIMATION_DURATION.toLong()
         startAnimation.fillAfter = true
+
         this.startAnimation(startAnimation)
 
         for(g:GuideView in guideViews){

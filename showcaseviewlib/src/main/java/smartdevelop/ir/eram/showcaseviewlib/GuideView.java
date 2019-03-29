@@ -50,15 +50,16 @@ import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.STROKE_CIRCLE
 public class GuideView extends FrameLayout {
     static final String TAG = "GuideView";
 
+    private final Xfermode X_FER_MODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+
     private final Paint selfPaint = new Paint();
     private final Paint paintLine = new Paint();
     private final Paint paintCircle = new Paint();
     private final Paint paintCircleInner = new Paint();
-    private final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Xfermode X_FER_MODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+    protected final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private View target;
-    private RectF targetRect;
+    protected RectF targetRect;
     private final Rect selfRect = new Rect();
 
     private float density, stopY;
@@ -199,6 +200,8 @@ public class GuideView extends FrameLayout {
         messageViewPadding = (int) (MESSAGE_VIEW_PADDING * density);
         strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE * density;
         circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density;
+        targetPaint.setXfermode(X_FER_MODE_CLEAR);
+        targetPaint.setAntiAlias(true);
     }
 
     private int getNavigationBarSize() {
@@ -220,6 +223,7 @@ public class GuideView extends FrameLayout {
         super.onDraw(canvas);
         if (target != null) {
 
+            // Background Color
             if (showSemitransparentBackground) {
                 selfPaint.setColor(BACKGROUND_COLOR);
                 selfPaint.setStyle(Paint.Style.FILL);
@@ -227,35 +231,35 @@ public class GuideView extends FrameLayout {
                 canvas.drawRect(selfRect, selfPaint);
             }
 
+            // Line Indicator
             paintLine.setStyle(Paint.Style.FILL);
             paintLine.setColor(LINE_INDICATOR_COLOR);
             paintLine.setStrokeWidth(lineIndicatorWidthSize);
             paintLine.setAntiAlias(true);
 
+            // Circle Indicator
             paintCircle.setStyle(Paint.Style.STROKE);
             paintCircle.setColor(CIRCLE_INDICATOR_COLOR);
             paintCircle.setStrokeCap(Paint.Cap.ROUND);
             paintCircle.setStrokeWidth(strokeCircleWidth);
             paintCircle.setAntiAlias(true);
 
+            // Inner Circle Indicator
             paintCircleInner.setStyle(Paint.Style.FILL);
             paintCircleInner.setColor(CIRCLE_INNER_INDICATOR_COLOR);
             paintCircleInner.setAntiAlias(true);
 
             final float x = (targetRect.left / 2 + targetRect.right / 2);
-            canvas.drawLine(x,
-                    startYLineAndCircle,
-                    x,
-                    stopY,
-                    paintLine);
 
+            // Line from the message to circle indicator
+            canvas.drawLine(x, startYLineAndCircle, x, stopY, paintLine);
+            // Indicator
             canvas.drawCircle(x, startYLineAndCircle, circleIndicatorSize, paintCircle);
+            // Inner Indicator
             canvas.drawCircle(x, startYLineAndCircle, circleInnerIndicatorSize, paintCircleInner);
 
-            targetPaint.setXfermode(X_FER_MODE_CLEAR);
-            targetPaint.setAntiAlias(true);
-
-            canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT, RADIUS_SIZE_TARGET_RECT, targetPaint);
+            if(showSemitransparentBackground)
+                canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT, RADIUS_SIZE_TARGET_RECT, targetPaint);
         }
     }
 
@@ -290,7 +294,7 @@ public class GuideView extends FrameLayout {
                 case message:
                     if (isViewContains(mMessageView, x, y)) {
                         dismiss();
-                        if(!isChild) success = true;
+                        success = true;
                     }
                     break;
 
@@ -335,7 +339,7 @@ public class GuideView extends FrameLayout {
     }
 
     private Point resolveMessageViewLocation() {
-        int xMessageView = 0;
+        int xMessageView;
         if (mGravity == Gravity.center) {
             xMessageView = (int) (targetRect.left - mMessageView.getWidth() / 2 + target.getWidth() / 2);
         } else
@@ -347,31 +351,19 @@ public class GuideView extends FrameLayout {
 
         if (xMessageView + mMessageView.getWidth() > getWidth())
             xMessageView = getWidth() - mMessageView.getWidth();
+
         if (xMessageView < 0)
             xMessageView = 0;
 
-        switch (position) {
-            case Top:
-                isTop = true;
-                yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
-                break;
-            case Bottom:
-                isTop = false;
-                yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
-                break;
-            case Auto:
-            default:
-                //set message view bottom
-                if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
-                    isTop = false;
-                    yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
-                }
-                //set message view top
-                else {
-                    isTop = true;
-                    yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
-                }
-                break;
+        //set message view bottom
+        if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
+            isTop = false;
+            yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
+        }
+        //set message view top
+        else {
+            isTop = true;
+            yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
         }
 
         if (yMessageView < 0)
@@ -380,7 +372,6 @@ public class GuideView extends FrameLayout {
 
         return new Point(xMessageView, yMessageView);
     }
-
 
     public void show() {
         this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -576,9 +567,9 @@ public class GuideView extends FrameLayout {
         }
 
         /**
-         * changing line width indicator
+         * changing line long indicator
          *
-         * @param width you can change width indicator
+         * @param width you can change long indicator
          */
         public Builder setIndicatorWidthSize(float width) {
             this.lineIndicatorWidthSize = width;
