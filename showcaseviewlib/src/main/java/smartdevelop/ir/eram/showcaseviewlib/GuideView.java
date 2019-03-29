@@ -76,6 +76,7 @@ public class GuideView extends FrameLayout {
     private float strokeCircleWidth;
     private float indicatorHeight;
 
+    private Position position = Position.Auto;
     private boolean isPerformedAnimationSize = false;
 
     private GuideListener mGuideListener;
@@ -241,7 +242,6 @@ public class GuideView extends FrameLayout {
             paintCircleInner.setColor(CIRCLE_INNER_INDICATOR_COLOR);
             paintCircleInner.setAntiAlias(true);
 
-
             final float x = (targetRect.left / 2 + targetRect.right / 2);
             canvas.drawLine(x,
                     startYLineAndCircle,
@@ -275,31 +275,41 @@ public class GuideView extends FrameLayout {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
+        boolean success = false;
 
-        if (!isChild)
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                switch (dismissType) {
-
-                    case outside:
-                        if (!isViewContains(mMessageView, x, y)) {
-                            dismiss();
-                        }
-                        break;
-
-                    case anywhere:
+        //if (!isChild)
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            switch (dismissType) {
+                case outside:
+                    if (!isViewContains(mMessageView, x, y)) {
                         dismiss();
-                        break;
+                        if(!isChild) success = true;
+                    }
+                    break;
 
-                    case targetView:
-                        if (targetRect.contains(x, y)) {
-                            target.performClick();
-                            dismiss();
-                        }
-                        break;
+                case message:
+                    if (isViewContains(mMessageView, x, y)) {
+                        dismiss();
+                        if(!isChild) success = true;
+                    }
+                    break;
 
-                }
-                return true;
+                case anywhere:
+                    dismiss();
+                    if(!isChild) success = true;
+                    break;
+
+                case targetView:
+                    if (targetRect.contains(x, y)) {
+                        target.performClick();
+                        dismiss();
+                        if(!isChild) success = true;
+                    }
+                    break;
+
             }
+            return success;
+        }
         return false;
     }
 
@@ -325,7 +335,6 @@ public class GuideView extends FrameLayout {
     }
 
     private Point resolveMessageViewLocation() {
-
         int xMessageView = 0;
         if (mGravity == Gravity.center) {
             xMessageView = (int) (targetRect.left - mMessageView.getWidth() / 2 + target.getWidth() / 2);
@@ -341,16 +350,28 @@ public class GuideView extends FrameLayout {
         if (xMessageView < 0)
             xMessageView = 0;
 
-
-        //set message view bottom
-        if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
-            isTop = false;
-            yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
-        }
-        //set message view top
-        else {
-            isTop = true;
-            yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
+        switch (position) {
+            case Top:
+                isTop = true;
+                yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
+                break;
+            case Bottom:
+                isTop = false;
+                yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
+                break;
+            case Auto:
+            default:
+                //set message view bottom
+                if (targetRect.top + (indicatorHeight) > getHeight() / 2) {
+                    isTop = false;
+                    yMessageView = (int) (targetRect.top - mMessageView.getHeight() - indicatorHeight);
+                }
+                //set message view top
+                else {
+                    isTop = true;
+                    yMessageView = (int) (targetRect.top + target.getHeight() + indicatorHeight);
+                }
+                break;
         }
 
         if (yMessageView < 0)
@@ -378,6 +399,10 @@ public class GuideView extends FrameLayout {
         mMessageView.setTitle(str);
     }
 
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     public void setContentText(String str) {
         mMessageView.setContentText(str);
     }
@@ -403,7 +428,11 @@ public class GuideView extends FrameLayout {
     }
 
     public void setSemitransparentBackground(Boolean show) {
-        this.showSemitransparentBackground = show;
+        showSemitransparentBackground = show;
+    }
+
+    public void setDismissType(DismissType dismissType) {
+        this.dismissType = dismissType;
     }
 
     public static class Builder {
@@ -423,6 +452,7 @@ public class GuideView extends FrameLayout {
         private float circleInnerIndicatorSize;
         private float strokeCircleWidth;
         private Boolean showSemitransparentBackground = true;
+        private Position position = Position.Auto;
 
         public Builder(Context context) {
             this.context = context;
@@ -590,11 +620,18 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
+        public Builder setPosition(Position position) {
+            this.position = position;
+            return this;
+        }
+
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
             guideView.mGravity = gravity != null ? gravity : Gravity.auto;
             guideView.dismissType = dismissType != null ? dismissType : DismissType.targetView;
             guideView.showSemitransparentBackground = this.showSemitransparentBackground;
+            guideView.position = this.position;
+
             float density = context.getResources().getDisplayMetrics().density;
 
             guideView.setTitle(title);

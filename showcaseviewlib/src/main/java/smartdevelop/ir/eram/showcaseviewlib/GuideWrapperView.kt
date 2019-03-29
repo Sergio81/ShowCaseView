@@ -12,6 +12,7 @@ import android.view.animation.AlphaAnimation
 import android.widget.FrameLayout
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.APPEARING_ANIMATION_DURATION
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.BACKGROUND_COLOR
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 
 class GuideWrapperView(context: Context) : FrameLayout(context) {
     private val selfPaint = Paint()
@@ -88,6 +89,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
 
         for(g:GuideView in guideViews){
             g.setSemitransparentBackground(false)
+            g.setDismissType(DismissType.message)
             g.isChild = true
             g.show()
         }

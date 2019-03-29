@@ -7,6 +7,7 @@ import android.widget.EditText;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.GuideWrapperView;
+import smartdevelop.ir.eram.showcaseviewlib.Position;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
@@ -77,30 +78,27 @@ public class MainActivity extends AppCompatActivity {
 //        mGuideView.show();
 
         GuideView guideView1 = new GuideView.Builder(this)
-                .setTitle("Guide Title Text")
+                .setTitle("Guide Title Text 1")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
-                .setGravity(Gravity.center)
-                .setSemitransparentBackground(true)
                 .setDismissType(DismissType.outside)
+                .setGravity(Gravity.center)
                 .setTargetView(view1)
                 .build();
 
         GuideView guideView2 = new GuideView.Builder(this)
-                .setTitle("Guide Title Text")
+                .setTitle("Guide Title Text 2")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
-                .setGravity(Gravity.center)
-                .setSemitransparentBackground(true)
                 .setDismissType(DismissType.outside)
+                .setGravity(Gravity.center)
                 .setTargetView(view2)
                 .build();
 
         GuideView guideView3 = new GuideView.Builder(this)
-                .setTitle("Guide Title Text")
+                .setTitle("Guide Title Text 3")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
-                .setGravity(Gravity.center)
-                .setSemitransparentBackground(true)
-                .setDismissType(DismissType.outside)
                 .setTargetView(view3)
+                .setGravity(Gravity.center)
+                .setPosition(Position.Top)
                 .build();
 
         GuideWrapperView sad = new GuideWrapperView.Builder(this)
