@@ -1,16 +1,14 @@
 package ir.smartdevelop.eram.showcaseview;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
-import android.widget.EditText;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.GuideWrapperView;
 import smartdevelop.ir.eram.showcaseviewlib.Position;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
-import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
 public class MainActivity extends AppCompatActivity {
 
