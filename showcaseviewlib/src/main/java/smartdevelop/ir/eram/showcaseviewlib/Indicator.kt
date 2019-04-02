@@ -2,7 +2,6 @@ package smartdevelop.ir.eram.showcaseviewlib
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.util.Log
 import android.view.View
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.CIRCLE_INDICATOR_COLOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.CIRCLE_INNER_INDICATOR_COLOR
@@ -11,7 +10,6 @@ import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.LINE_INDIC
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MARGIN_INDICATOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MESSAGE_VIEW_PADDING
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.STROKE_CIRCLE_INDICATOR_SIZE
-import java.util.logging.LogManager
 
 internal class Indicator(
         private val view: View,
@@ -40,12 +38,12 @@ internal class Indicator(
     var locked = false
 
     fun updatePosition() {
-        var viewPosition = IntArray(2)
+        val viewPosition = IntArray(2)
 
         view.getLocationOnScreen(viewPosition)
 
         if (viewPosition.size == 2) {
-            init = getMessageMiddle()
+            init = getInitialPoint()
             final = getFinalPoint(viewPosition[0].toFloat(), viewPosition[1].toFloat())
             if (!locked){
                 currentFinalPosition.x = init.x
@@ -115,7 +113,7 @@ internal class Indicator(
                     final.x
             }
 
-    private fun getMessageMiddle(): PointF =
+    private fun getInitialPoint(): PointF =
             when (position) {
                 Position.Top -> PointF(
                         view.x + (view.width * offset),
@@ -134,22 +132,25 @@ internal class Indicator(
                         messageView.y)
             }
 
-    private fun getFinalPoint(viewX: Float, viewY: Float): PointF =
-            when (position) {
-                Position.Top -> PointF(
-                        view.x + (view.width * offset),
-                        viewY - (MARGIN_INDICATOR))
-                Position.Bottom -> PointF(
-                        view.x + (view.width * offset),
-                        viewY + view.height + MARGIN_INDICATOR)
-                Position.Left -> PointF(
-                        viewX - (MARGIN_INDICATOR),
-                        messageView.y + (messageView.height * offset))
-                Position.Right -> PointF(
-                        viewX + view.width + MARGIN_INDICATOR,
-                        messageView.y + (messageView.height * offset))
-                Position.Auto -> PointF(
-                        messageView.x,
-                        messageView.y)
-            }
+    private fun getFinalPoint(viewX: Float, viewY: Float): PointF {
+
+        return when (position) {
+            Position.Top -> PointF(
+                    view.x + (view.width * offset),
+                    viewY - (MARGIN_INDICATOR))
+            Position.Bottom -> PointF(
+                    view.x + (view.width * offset),
+                    viewY + view.height + MARGIN_INDICATOR)
+            Position.Left -> PointF(
+                    viewX - (MARGIN_INDICATOR),
+                    messageView.y + (messageView.height * offset))
+            Position.Right -> PointF(
+                    viewX + view.width + MARGIN_INDICATOR,
+                    messageView.y + (messageView.height * offset))
+            Position.Auto -> PointF(
+                    viewX,
+                    viewY)
+        }
+    }
+
 }

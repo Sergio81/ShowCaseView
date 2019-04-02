@@ -18,7 +18,6 @@ import android.graphics.Typeface;
 import android.graphics.Xfermode;
 import android.os.Build;
 import android.text.Spannable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,17 +31,12 @@ import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
 
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.APPEARING_ANIMATION_DURATION;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.BACKGROUND_COLOR;
-import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INDICATOR_COLOR;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INDICATOR_SIZE;
-import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INNER_INDICATOR_COLOR;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.INDICATOR_HEIGHT;
-import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.LINE_INDICATOR_COLOR;
-import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.LINE_INDICATOR_WIDTH_SIZE;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.MARGIN_INDICATOR;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.MESSAGE_VIEW_PADDING;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.RADIUS_SIZE_TARGET_RECT;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.SIZE_ANIMATION_DURATION;
-import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.STROKE_CIRCLE_INDICATOR_SIZE;
 
 /**
  * Created by Mohammad Reza Eram on 20/01/2018.
@@ -60,6 +54,8 @@ public class GuideView extends FrameLayout {
     private View target;
     protected RectF targetRect;
     private final Rect selfRect = new Rect();
+    private float overridedX = 0f;
+    private float overridedY = 0f;
 
     private float density, stopY;
     private boolean isTop;
@@ -132,7 +128,6 @@ public class GuideView extends FrameLayout {
 
                 marginGuide = (int) (isTop ? marginGuide : -marginGuide);
                 stopY = yMessageView + indicatorHeight;
-
 
                 getViewTreeObserver().addOnGlobalLayoutListener(this);
 
@@ -344,23 +339,24 @@ public class GuideView extends FrameLayout {
 
         switch (position){
             case Top:
-                xMessageView = (int) (targetRect.left - (targetRect.width() / 2));
-                yMessageView = (int) (targetRect.top - indicatorHeight - mMessageView.getHeight());
+                xMessageView = (int) (targetRect.left - (targetRect.width() / 2) + overridedX);
+                yMessageView = (int) (targetRect.top - indicatorHeight - mMessageView.getHeight() + overridedY);
                 break;
             case Bottom:
-                xMessageView = (int) (targetRect.left - (targetRect.width() / 2));
-                yMessageView = (int) (targetRect.top + targetRect.height() + indicatorHeight);
+                xMessageView = (int) (targetRect.left - (targetRect.width() / 2) + overridedX);
+                yMessageView = (int) (targetRect.top + targetRect.height() + indicatorHeight + overridedY);
                 break;
             case Left:
-                xMessageView = (int) (targetRect.left - mMessageView.getWidth() - indicatorHeight);
-                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2));
+                xMessageView = (int) (targetRect.left - mMessageView.getWidth() - indicatorHeight + overridedX);
+                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2) + overridedY);
                 break;
             case Right:
-                xMessageView = (int) (targetRect.right + indicatorHeight);
-                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2));
+                xMessageView = (int) (targetRect.right + indicatorHeight + overridedX);
+                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2) + overridedY);
                 break;
             default:
                 xMessageView = (int) targetRect.top - mMessageView.getHeight();
+                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2));
                 break;
         }
 
@@ -439,7 +435,10 @@ public class GuideView extends FrameLayout {
         private float strokeCircleWidth;
         private Boolean showSemitransparentBackground = true;
         private Position position = Position.Auto;
+        private float overrideX = 0f;
+        private float overrideY = 0f;
 
+        //region setters
         public Builder(Context context) {
             this.context = context;
         }
@@ -611,10 +610,23 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
+        public Builder overrideXMessage(float x){
+            overrideX = x;
+            return this;
+        }
+
+        public Builder overrideYMessage(float y){
+            overrideY = y;
+            return this;
+        }
+        //endregion
+
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
             guideView.dismissType = dismissType != null ? dismissType : DismissType.targetView;
             guideView.showSemitransparentBackground = this.showSemitransparentBackground;
+            guideView.overridedX = this.overrideX;
+            guideView.overridedY = this.overrideY;
 
             float density = context.getResources().getDisplayMetrics().density;
 

@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GuideView guideView1 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text 1")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
-                .setDismissType(DismissType.outside)
+                .setDismissType(DismissType.anywhere)
                 .setGravity(Gravity.center)
                 .setTargetView(view1)
                 .setPosition(Position.Left)
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GuideView guideView2 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text 2")
                 .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
-                .setDismissType(DismissType.outside)
+                .setDismissType(DismissType.anywhere)
                 .setGravity(Gravity.center)
                 .setTargetView(view2)
                 .setPosition(Position.Right)
@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTargetView(view4)
                 .setGravity(Gravity.center)
                 .setPosition(Position.Top)
+                .overrideYMessage(-200)
+                .overrideXMessage(-100)
                 .build();
 
         GuideWrapperView sad = new GuideWrapperView.Builder(this)
