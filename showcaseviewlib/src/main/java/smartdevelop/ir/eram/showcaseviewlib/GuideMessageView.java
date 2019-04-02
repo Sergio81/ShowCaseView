@@ -18,6 +18,7 @@ import android.widget.TextView;
  */
 
 class GuideMessageView extends LinearLayout {
+    float density;
 
     private Paint mPaint;
     private RectF mRect;
@@ -29,7 +30,7 @@ class GuideMessageView extends LinearLayout {
     GuideMessageView(Context context) {
         super(context);
 
-        float density = context.getResources().getDisplayMetrics().density;
+        density = context.getResources().getDisplayMetrics().density;
         setWillNotDraw(false);
         setOrientation(VERTICAL);
         setGravity(Gravity.CENTER);
