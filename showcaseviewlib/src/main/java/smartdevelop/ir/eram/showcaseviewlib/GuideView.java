@@ -133,11 +133,18 @@ public class GuideView extends FrameLayout {
                 marginGuide = (int) (isTop ? marginGuide : -marginGuide);
                 stopY = yMessageView + indicatorHeight;
 
-                startAnimationSize();
+
                 getViewTreeObserver().addOnGlobalLayoutListener(this);
 
             }
         };
+
+        this.post( new Runnable() {
+            @Override
+            public void run() {
+                startAnimationSize();
+            }
+        });
 
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
     }
