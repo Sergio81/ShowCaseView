@@ -57,7 +57,6 @@ public class GuideMessageView extends LinearLayout {
         addView(mContentTextView, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
-
     public void setTitle(String title) {
         if (title == null) {
             removeView(mTitleTextView);
@@ -65,7 +64,6 @@ public class GuideMessageView extends LinearLayout {
         }
         mTitleTextView.setText(title);
     }
-
 
     public void setContentText(String content) {
         mContentTextView.setText(content);

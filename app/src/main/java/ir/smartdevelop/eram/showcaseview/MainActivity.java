@@ -6,8 +6,8 @@ import android.view.View;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.GuideWrapperView;
-import smartdevelop.ir.eram.showcaseviewlib.utils.Position;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
+import smartdevelop.ir.eram.showcaseviewlib.utils.Position;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -72,15 +72,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTargetView(view4)
                 .setGravity(Gravity.center)
                 .setPosition(Position.Top)
-                .overrideYMessage(-150)
+                .overrideYMessage(-230)
                 .overrideXMessage(-70)
                 .build();
 
         GuideWrapperView sad = new GuideWrapperView.Builder(this)
                 .setTargetGuideView(guideView2)
                 .setTargetGuideView(guideView1)
-                .setTargetGuideView(guideView4)
                 .setTargetGuideView(guideView3)
+                .setTargetGuideView(guideView4)
                 .build();
 
         sad.show();

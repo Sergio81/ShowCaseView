@@ -3,12 +3,16 @@ package smartdevelop.ir.eram.showcaseviewlib
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AlphaAnimation
 import android.widget.FrameLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.APPEARING_ANIMATION_DURATION
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.BACKGROUND_COLOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.RADIUS_SIZE_TARGET_RECT
@@ -18,7 +22,7 @@ import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
  * Created by Sergio Fabian Aguilar Vega on 4/03/2019
  */
 
-class GuideWrapperView(context: Context) : FrameLayout(context) {
+class GuideWrapperView(context: Context) : FrameLayout(context), LifecycleObserver {
     private val selfPaint = Paint()
     private val selfRect = Rect()
     private var mIsShowing: Boolean = true
@@ -50,6 +54,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
         selfPaint.color = BACKGROUND_COLOR
         selfPaint.style = Paint.Style.FILL
         selfPaint.isAntiAlias = true
+
         canvas.drawRect(selfRect, selfPaint)
 
         // Show the children views without the background
@@ -73,6 +78,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
     }
 
     fun dismiss() {
+        for(g: GuideView in guideViews) g.dismiss()
         ((context as Activity).window.decorView as ViewGroup).removeView(this)
         mIsShowing = false
     }
@@ -102,9 +108,17 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
             g.setDismissType(DismissType.message)
             g.isChild = true
             g.show()
+
+            // To get the last update on the view's measures
+            g.viewTreeObserver.addOnGlobalLayoutListener { postInvalidate() }
         }
 
         mIsShowing = true
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun onPause() {
+        dismiss()
     }
 
     class Builder(private val context: Context) {

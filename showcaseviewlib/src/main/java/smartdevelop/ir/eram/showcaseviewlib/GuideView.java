@@ -16,6 +16,7 @@ import android.graphics.Typeface;
 import android.graphics.Xfermode;
 import android.os.Build;
 import android.text.Spannable;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,14 +100,10 @@ public class GuideView extends FrameLayout {
 
         setMessageLocation(resolveMessageViewLocation());
 
+
         ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN)
-                    getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                else
-                    getViewTreeObserver().removeGlobalOnLayoutListener(this);
-
                 setMessageLocation(resolveMessageViewLocation());
                 int[] locationTarget = new int[2];
                 target.getLocationOnScreen(locationTarget);
@@ -120,33 +117,25 @@ public class GuideView extends FrameLayout {
                         getPaddingTop(),
                         getWidth() - getPaddingRight(),
                         getHeight() - getPaddingBottom());
-
-                getViewTreeObserver().addOnGlobalLayoutListener(this);
             }
         };
 
-        getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+        view.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
     }
 
     private void startAnimationSize() {
         if (!isPerformedAnimationSize) {
             final ValueAnimator circleSizeAnimator = ValueAnimator.ofFloat(0f, circleIndicatorSizeFinal);
-            circleSizeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    indicator.setCircleIndicatorSize((float) circleSizeAnimator.getAnimatedValue());
-                    indicator.setCircleInnerIndicatorSize((float) circleSizeAnimator.getAnimatedValue() - density);
-                    postInvalidate();
-                }
+            circleSizeAnimator.addUpdateListener(valueAnimator -> {
+                indicator.setCircleIndicatorSize((float) circleSizeAnimator.getAnimatedValue());
+                indicator.setCircleInnerIndicatorSize((float) circleSizeAnimator.getAnimatedValue() - density);
+                postInvalidate();
             });
 
             final ValueAnimator linePositionAnimator = ValueAnimator.ofFloat(indicator.getInitAnimation(), indicator.getFinalAnimation());
-            linePositionAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    indicator.setCurrentAnimatedPosition((float) linePositionAnimator.getAnimatedValue());
-                    postInvalidate();
-                }
+            linePositionAnimator.addUpdateListener(valueAnimator -> {
+                indicator.setCurrentAnimatedPosition((float) linePositionAnimator.getAnimatedValue());
+                postInvalidate();
             });
 
             linePositionAnimator.setDuration(SIZE_ANIMATION_DURATION);
