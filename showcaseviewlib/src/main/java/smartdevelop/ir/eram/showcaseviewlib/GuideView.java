@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
+import smartdevelop.ir.eram.showcaseviewlib.utils.PointF;
 import smartdevelop.ir.eram.showcaseviewlib.utils.Position;
 
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.APPEARING_ANIMATION_DURATION;
@@ -53,8 +54,13 @@ public class GuideView extends FrameLayout {
     private View target;
     protected RectF targetRect;
     private final Rect selfRect = new Rect();
+
     private float overrideX = 0f;
     private float overrideY = 0f;
+
+    private float overrideTargetWidth = 0;
+    private float overrideTargetHeight = 0;
+    private final PointF overrideTargetPosition = new PointF(0,0);
 
     private float density;
     private boolean mIsShowing;
@@ -101,23 +107,20 @@ public class GuideView extends FrameLayout {
         setMessageLocation(resolveMessageViewLocation());
 
 
-        ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                setMessageLocation(resolveMessageViewLocation());
-                int[] locationTarget = new int[2];
-                target.getLocationOnScreen(locationTarget);
+        ViewTreeObserver.OnGlobalLayoutListener layoutListener = () -> {
+            setMessageLocation(resolveMessageViewLocation());
+            int[] locationTarget1 = new int[2];
+            target.getLocationOnScreen(locationTarget1);
 
-                targetRect = new RectF(locationTarget[0],
-                        locationTarget[1],
-                        locationTarget[0] + target.getWidth(),
-                        locationTarget[1] + target.getHeight());
+            targetRect = new RectF(locationTarget1[0],
+                    locationTarget1[1],
+                    locationTarget1[0] + target.getWidth(),
+                    locationTarget1[1] + target.getHeight());
 
-                selfRect.set(getPaddingLeft(),
-                        getPaddingTop(),
-                        getWidth() - getPaddingRight(),
-                        getHeight() - getPaddingBottom());
-            }
+            selfRect.set(getPaddingLeft(),
+                    getPaddingTop(),
+                    getWidth() - getPaddingRight(),
+                    getHeight() - getPaddingBottom());
         };
 
         view.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
@@ -407,6 +410,10 @@ public class GuideView extends FrameLayout {
         private float overrideX = 0f;
         private float overrideY = 0f;
 
+        private float overrideTargetWidth = 0;
+        private float overrideTargetHeight = 0;
+        private PointF overrideTargetPosition = new PointF(0,0);
+
         //region setters
         public Builder(Context context) {
             this.context = context;
@@ -588,6 +595,26 @@ public class GuideView extends FrameLayout {
             overrideY = y;
             return this;
         }
+
+        public Builder overrideTargetWidth(float w) {
+            overrideTargetWidth = w;
+            return this;
+        }
+
+        public Builder overrideTargetHeight(float h) {
+            overrideTargetHeight = h;
+            return this;
+        }
+
+        public Builder overrideXTarget(float x) {
+            overrideTargetPosition.setX(x);
+            return this;
+        }
+
+        public Builder overrideYTarget(float y) {
+            overrideTargetPosition.setY(y);
+            return this;
+        }
         //endregion
 
         public GuideView build() {
@@ -596,6 +623,11 @@ public class GuideView extends FrameLayout {
             guideView.showSemitransparentBackground = this.showSemitransparentBackground;
             guideView.overrideX = this.overrideX;
             guideView.overrideY = this.overrideY;
+            guideView.overrideTargetHeight = this.overrideTargetHeight;
+            guideView.overrideTargetWidth = this.overrideTargetWidth;
+
+            guideView.overrideTargetPosition.setX(this.overrideTargetPosition.getX());
+            guideView.overrideTargetPosition.setY(this.overrideTargetPosition.getY());
 
             float density = context.getResources().getDisplayMetrics().density;
 
