@@ -17,8 +17,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     View view3;
     View view4;
     View view5;
-    private GuideView mGuideView;
-    private GuideView.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         showTooltips();
-        //updatingForDynamicLocationViews();
 
         view3.setOnClickListener(this);
     }
@@ -46,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setGravity(Gravity.center)
                 .setTargetView(view1)
                 .setPosition(Position.Left)
+                .overrideYMessage(40)
                 .build();
 
         GuideView guideView2 = new GuideView.Builder(this)
@@ -55,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setGravity(Gravity.center)
                 .setTargetView(view2)
                 .setPosition(Position.Right)
+                .overrideYMessage(-40)
                 .build();
 
         GuideView guideView3 = new GuideView.Builder(this)
@@ -63,35 +62,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTargetView(view3)
                 .setGravity(Gravity.center)
                 .setPosition(Position.Bottom)
+                .overrideYMessage(150)
+                .overrideXMessage(-40)
                 .build();
 
         GuideView guideView4 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text 4")
-                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+                .setContentText("Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut ")
                 .setTargetView(view4)
                 .setGravity(Gravity.center)
                 .setPosition(Position.Top)
-                .overrideYMessage(-200)
-                .overrideXMessage(-100)
+                .overrideYMessage(-150)
+                .overrideXMessage(-70)
                 .build();
 
         GuideWrapperView sad = new GuideWrapperView.Builder(this)
-                .setTargetGuideView(guideView1)
                 .setTargetGuideView(guideView2)
-                .setTargetGuideView(guideView3)
+                .setTargetGuideView(guideView1)
                 .setTargetGuideView(guideView4)
+                .setTargetGuideView(guideView3)
                 .build();
 
         sad.show();
-    }
-
-    private void updatingForDynamicLocationViews() {
-        view4.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                mGuideView.updateGuideViewLocation();
-            }
-        });
     }
 
     @Override

@@ -43,9 +43,9 @@ internal class Indicator(
         view.getLocationOnScreen(viewPosition)
 
         if (viewPosition.size == 2) {
-            init = getInitialPoint()
+            init = getInitialPoint(viewPosition[0].toFloat(), viewPosition[1].toFloat())
             final = getFinalPoint(viewPosition[0].toFloat(), viewPosition[1].toFloat())
-            if (!locked){
+            if (!locked) {
                 currentFinalPosition.x = init.x
                 currentFinalPosition.y = init.y
             }
@@ -73,10 +73,10 @@ internal class Indicator(
 
 
         //canvas.drawLine(init.x, init.y, final.x, final.y, paintLine)
-        when(position){
+        when (position) {
             Position.Top, Position.Bottom ->
                 currentFinalPosition.x = final.x
-            Position.Left, Position.Right, Position.Auto ->
+            Position.Left, Position.Right ->
                 currentFinalPosition.y = final.y
         }
 
@@ -92,64 +92,95 @@ internal class Indicator(
         when (position) {
             Position.Top, Position.Bottom ->
                 currentFinalPosition.y = newPosition
-            Position.Left, Position.Right, Position.Auto ->
+            Position.Left, Position.Right ->
                 currentFinalPosition.x = newPosition
         }
     }
 
     fun getInitAnimation(): Float =
             when (position) {
-                Position.Top, Position.Bottom ->
-                    init.y
-                Position.Left, Position.Right, Position.Auto ->
-                    init.x
+                Position.Top, Position.Bottom -> init.y
+                Position.Left, Position.Right -> init.x
             }
 
     fun getFinalAnimation(): Float =
             when (position) {
-                Position.Top, Position.Bottom ->
-                    final.y
-                Position.Left, Position.Right, Position.Auto ->
-                    final.x
+                Position.Top, Position.Bottom -> final.y
+                Position.Left, Position.Right -> final.x
             }
 
-    private fun getInitialPoint(): PointF =
+    private fun getOverflow(viewX: Float, viewY: Float): Float {
+        val centerView = PointF(
+                view.width / 2f,
+                view.height / 2f
+        )
+        val tolerance = 0.3f
+        val centerMessagePoint = PointF(
+                messageView.x + (messageView.width / 2f),
+                messageView.y + (messageView.height / 2f)
+        )
+        val centerViewPoint = PointF(
+                viewX + (view.width / 2f),
+                viewY + (view.height / 2f)
+        )
+
+        val viewTolerance = PointF(
+                view.width * tolerance,
+                view.height * tolerance
+        )
+
+        return when (position) {
+            Position.Top,
+            Position.Bottom -> when {
+                centerMessagePoint.x in centerViewPoint.x - viewTolerance.x..centerViewPoint.x + viewTolerance.x ->
+                    0f // middle
+                centerMessagePoint.x in 0f..centerViewPoint.x ->
+                    -(centerView.x - 20) // left
+                else ->
+                    centerView.x - 20 // right
+            }
+            Position.Left,
+            Position.Right -> when {
+                centerMessagePoint.y in centerViewPoint.y - viewTolerance.y..centerViewPoint.y + viewTolerance.y ->
+                    0f // middle
+                centerMessagePoint.y in 0f..centerViewPoint.y ->
+                    -(centerView.y - 20) // top
+                else ->
+                    centerView.y - 10 // bottom
+            }
+        }
+    }
+
+    private fun getInitialPoint(viewX: Float, viewY: Float): PointF =
             when (position) {
                 Position.Top -> PointF(
-                        view.x + (view.width * offset),
+                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
                         messageView.y + messageView.height - MESSAGE_VIEW_PADDING)
                 Position.Bottom -> PointF(
-                        view.x + (view.width * offset),
+                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
                         messageView.y + MESSAGE_VIEW_PADDING)
                 Position.Left -> PointF(
                         messageView.x + messageView.width - MESSAGE_VIEW_PADDING,
-                        messageView.y + (messageView.height * offset))
+                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
                 Position.Right -> PointF(
                         messageView.x + MESSAGE_VIEW_PADDING,
-                        messageView.y + (messageView.height * offset))
-                Position.Auto -> PointF(
-                        messageView.x,
-                        messageView.y)
+                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
             }
 
     private fun getFinalPoint(viewX: Float, viewY: Float): PointF {
-
         return when (position) {
             Position.Top -> PointF(
-                    view.x + (view.width * offset),
+                    view.x + (view.width * offset) + getOverflow(viewX, viewY),
                     viewY - (MARGIN_INDICATOR))
             Position.Bottom -> PointF(
-                    view.x + (view.width * offset),
+                    view.x + (view.width * offset) + getOverflow(viewX, viewY),
                     viewY + view.height + MARGIN_INDICATOR)
             Position.Left -> PointF(
                     viewX - (MARGIN_INDICATOR),
-                    messageView.y + (messageView.height * offset))
+                    viewY + (view.height * offset)  + getOverflow(viewX, viewY))
             Position.Right -> PointF(
                     viewX + view.width + MARGIN_INDICATOR,
-                    messageView.y + (messageView.height * offset))
-            Position.Auto -> PointF(
-                    viewX,
-                    viewY)
+                    viewY + (view.height * offset)  + getOverflow(viewX, viewY))
         }
     }
 

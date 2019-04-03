@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
@@ -44,8 +45,6 @@ import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.SIZE_ANIMATIO
 
 public class GuideView extends FrameLayout {
     //region Global variables
-    static final String TAG = "GuideView";
-
     private final Xfermode X_FER_MODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
 
     private final Paint selfPaint = new Paint();
@@ -54,17 +53,14 @@ public class GuideView extends FrameLayout {
     private View target;
     protected RectF targetRect;
     private final Rect selfRect = new Rect();
-    private float overridedX = 0f;
-    private float overridedY = 0f;
+    private float overrideX = 0f;
+    private float overrideY = 0f;
 
-    private float density, stopY;
-    private boolean isTop;
+    private float density;
     private boolean mIsShowing;
-    private int yMessageView = 0;
 
     private float circleIndicatorSizeFinal;
     private int messageViewPadding;
-    private float marginGuide;
     private float indicatorHeight;
 
     private boolean isPerformedAnimationSize = false;
@@ -74,7 +70,7 @@ public class GuideView extends FrameLayout {
     private GuideMessageView mMessageView;
     private Boolean showSemitransparentBackground = true;
 
-    private Position position = Position.Auto;
+    private Position position = Position.Top;
     private Indicator indicator;
     protected Boolean isChild = false;
     //endregion
@@ -126,20 +122,9 @@ public class GuideView extends FrameLayout {
                         getWidth() - getPaddingRight(),
                         getHeight() - getPaddingBottom());
 
-                marginGuide = (int) (isTop ? marginGuide : -marginGuide);
-                stopY = yMessageView + indicatorHeight;
-
                 getViewTreeObserver().addOnGlobalLayoutListener(this);
-
             }
         };
-
-        this.post( new Runnable() {
-            @Override
-            public void run() {
-                startAnimationSize();
-            }
-        });
 
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
     }
@@ -160,7 +145,7 @@ public class GuideView extends FrameLayout {
             linePositionAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    indicator.setCurrentAnimatedPosition((float)linePositionAnimator.getAnimatedValue());
+                    indicator.setCurrentAnimatedPosition((float) linePositionAnimator.getAnimatedValue());
                     postInvalidate();
                 }
             });
@@ -188,7 +173,7 @@ public class GuideView extends FrameLayout {
                 }
             });
 
-            circleSizeAnimator.addListener(new Animator.AnimatorListener(){
+            circleSizeAnimator.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
 
@@ -214,28 +199,11 @@ public class GuideView extends FrameLayout {
     }
 
     private void init() {
-        //lineIndicatorWidthSize = LINE_INDICATOR_WIDTH_SIZE * density;
-        marginGuide = MARGIN_INDICATOR * density;
         indicatorHeight = INDICATOR_HEIGHT * density;
         messageViewPadding = (int) (MESSAGE_VIEW_PADDING * density);
-        //strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE * density;
         circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density;
         targetPaint.setXfermode(X_FER_MODE_CLEAR);
         targetPaint.setAntiAlias(true);
-    }
-
-    private int getNavigationBarSize() {
-        Resources resources = getContext().getResources();
-        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return resources.getDimensionPixelSize(resourceId);
-        }
-        return 0;
-    }
-
-    private boolean isLandscape() {
-        int display_mode = getResources().getConfiguration().orientation;
-        return display_mode != Configuration.ORIENTATION_PORTRAIT;
     }
 
     @Override
@@ -330,50 +298,63 @@ public class GuideView extends FrameLayout {
         postInvalidate();
     }
 
-    public void updateGuideViewLocation() {
-        requestLayout();
-    }
-
     private Point resolveMessageViewLocation() {
-        int xMessageView;
-
-        switch (position){
+        switch (position) {
             case Top:
-                xMessageView = (int) (targetRect.left - (targetRect.width() / 2) + overridedX);
-                yMessageView = (int) (targetRect.top - indicatorHeight - mMessageView.getHeight() + overridedY);
-                break;
+                return new Point(
+                        (int) (targetRect.left - ((float)mMessageView.getWidth()/ 2) + (targetRect.width() / 2) + overrideX),
+                        (int) (targetRect.top - indicatorHeight - mMessageView.getHeight() + overrideY));
             case Bottom:
-                xMessageView = (int) (targetRect.left - (targetRect.width() / 2) + overridedX);
-                yMessageView = (int) (targetRect.top + targetRect.height() + indicatorHeight + overridedY);
-                break;
+                return new Point(
+                        (int) (targetRect.left - ((float)mMessageView.getWidth()/ 2) + (targetRect.width() / 2) + overrideX),
+                        (int) (targetRect.top + targetRect.height() + indicatorHeight + overrideY));
             case Left:
-                xMessageView = (int) (targetRect.left - mMessageView.getWidth() - indicatorHeight + overridedX);
-                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2) + overridedY);
-                break;
+                return new Point(
+                        (int) (targetRect.left - mMessageView.getWidth() - indicatorHeight + overrideX),
+                        (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2) + overrideY));
             case Right:
-                xMessageView = (int) (targetRect.right + indicatorHeight + overridedX);
-                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2) + overridedY);
-                break;
             default:
-                xMessageView = (int) targetRect.top - mMessageView.getHeight();
-                yMessageView = (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2));
-                break;
+                return new Point(
+                        (int) (targetRect.right + indicatorHeight + overrideX),
+                        (int) ((targetRect.top + (targetRect.height() / 2)) - (mMessageView.getHeight() / 2) + overrideY));
         }
-
-        return new Point(xMessageView, yMessageView);
     }
 
     public void show() {
-        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         this.setClickable(false);
 
         ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).addView(this);
+
         AlphaAnimation startAnimation = new AlphaAnimation(0.0f, 1.0f);
         startAnimation.setDuration(APPEARING_ANIMATION_DURATION);
         startAnimation.setFillAfter(true);
         this.startAnimation(startAnimation);
+
+        startAnimation.setAnimationListener(new Animation.AnimationListener(){
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                startAnimationSize();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
         mIsShowing = true;
+
+//        this.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                startAnimationSize();
+//            }
+//        });
     }
 
     public void setTitle(String str) {
@@ -434,7 +415,7 @@ public class GuideView extends FrameLayout {
         private float circleInnerIndicatorSize;
         private float strokeCircleWidth;
         private Boolean showSemitransparentBackground = true;
-        private Position position = Position.Auto;
+        private Position position = Position.Top;
         private float overrideX = 0f;
         private float overrideY = 0f;
 
@@ -610,12 +591,12 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
-        public Builder overrideXMessage(float x){
+        public Builder overrideXMessage(float x) {
             overrideX = x;
             return this;
         }
 
-        public Builder overrideYMessage(float y){
+        public Builder overrideYMessage(float y) {
             overrideY = y;
             return this;
         }
@@ -625,8 +606,8 @@ public class GuideView extends FrameLayout {
             GuideView guideView = new GuideView(context, targetView);
             guideView.dismissType = dismissType != null ? dismissType : DismissType.targetView;
             guideView.showSemitransparentBackground = this.showSemitransparentBackground;
-            guideView.overridedX = this.overrideX;
-            guideView.overridedY = this.overrideY;
+            guideView.overrideX = this.overrideX;
+            guideView.overrideY = this.overrideY;
 
             float density = context.getResources().getDisplayMetrics().density;
 
