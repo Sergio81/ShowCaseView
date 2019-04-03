@@ -17,7 +17,7 @@ import android.widget.TextView;
  * Created by Mohammad Reza Eram  on 20/01/2018.
  */
 
-class GuideMessageView extends LinearLayout {
+public class GuideMessageView extends LinearLayout {
     float density;
 
     private Paint mPaint;

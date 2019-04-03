@@ -1,6 +1,10 @@
 package smartdevelop.ir.eram.showcaseviewlib
 import android.graphics.Color
 
+/**
+ * Created by Sergio Fabian Aguilar Vega on 4/03/2019
+ */
+
 class GlobalVariables {
     companion object {
         internal const val INDICATOR_HEIGHT = 40

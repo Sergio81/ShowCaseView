@@ -6,7 +6,7 @@ import android.view.View;
 
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.GuideWrapperView;
-import smartdevelop.ir.eram.showcaseviewlib.Position;
+import smartdevelop.ir.eram.showcaseviewlib.utils.Position;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 

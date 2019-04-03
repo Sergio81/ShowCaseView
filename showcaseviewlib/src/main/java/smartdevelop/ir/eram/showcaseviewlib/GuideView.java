@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,18 +27,19 @@ import android.widget.FrameLayout;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
 import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener;
+import smartdevelop.ir.eram.showcaseviewlib.utils.Position;
 
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.APPEARING_ANIMATION_DURATION;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.BACKGROUND_COLOR;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.CIRCLE_INDICATOR_SIZE;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.INDICATOR_HEIGHT;
-import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.MARGIN_INDICATOR;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.MESSAGE_VIEW_PADDING;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.RADIUS_SIZE_TARGET_RECT;
 import static smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.SIZE_ANIMATION_DURATION;
 
 /**
  * Created by Mohammad Reza Eram on 20/01/2018.
+ * Updated by Sergio Fabian Aguilar Vega on 4/03/2019
  */
 
 public class GuideView extends FrameLayout {

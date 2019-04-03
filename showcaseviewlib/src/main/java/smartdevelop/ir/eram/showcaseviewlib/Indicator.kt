@@ -10,6 +10,12 @@ import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.LINE_INDIC
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MARGIN_INDICATOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MESSAGE_VIEW_PADDING
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.STROKE_CIRCLE_INDICATOR_SIZE
+import smartdevelop.ir.eram.showcaseviewlib.utils.PointF
+import smartdevelop.ir.eram.showcaseviewlib.utils.Position
+
+/**
+ * Created by Sergio Fabian Aguilar Vega on 4/03/2019
+ */
 
 internal class Indicator(
         private val view: View,
@@ -177,10 +183,10 @@ internal class Indicator(
                     viewY + view.height + MARGIN_INDICATOR)
             Position.Left -> PointF(
                     viewX - (MARGIN_INDICATOR),
-                    viewY + (view.height * offset)  + getOverflow(viewX, viewY))
+                    viewY + (view.height * offset) + getOverflow(viewX, viewY))
             Position.Right -> PointF(
                     viewX + view.width + MARGIN_INDICATOR,
-                    viewY + (view.height * offset)  + getOverflow(viewX, viewY))
+                    viewY + (view.height * offset) + getOverflow(viewX, viewY))
         }
     }
 

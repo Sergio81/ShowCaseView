@@ -14,6 +14,10 @@ import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.BACKGROUND
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.RADIUS_SIZE_TARGET_RECT
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 
+/**
+ * Created by Sergio Fabian Aguilar Vega on 4/03/2019
+ */
+
 class GuideWrapperView(context: Context) : FrameLayout(context) {
     private val selfPaint = Paint()
     private val selfRect = Rect()
@@ -49,7 +53,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
         canvas.drawRect(selfRect, selfPaint)
 
         // Show the children views without the background
-        for(g:GuideView in guideViews){
+        for(g: GuideView in guideViews){
             canvas.drawRoundRect(
                     g.targetRect,
                     RADIUS_SIZE_TARGET_RECT.toFloat(),
@@ -60,7 +64,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event!!.action == MotionEvent.ACTION_DOWN) {
-            for(g:GuideView in guideViews)
+            for(g: GuideView in guideViews)
                 g.dismiss()
             dismiss()
             return true
@@ -93,7 +97,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context) {
 
         this.startAnimation(startAnimation)
 
-        for(g:GuideView in guideViews){
+        for(g: GuideView in guideViews){
             g.setSemitransparentBackground(false)
             g.setDismissType(DismissType.message)
             g.isChild = true
