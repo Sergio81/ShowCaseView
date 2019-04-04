@@ -47,9 +47,11 @@ class GuideView private constructor(context: Context, private val target: View? 
     private val X_FER_MODE_CLEAR = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
 
     private val selfPaint = Paint()
+    private val selfRect = Rect()
+
     internal val targetPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     internal lateinit var targetRect: RectF
-    private val selfRect = Rect()
+
     private var overrideX = 0f
     private var overrideY = 0f
 
@@ -57,7 +59,7 @@ class GuideView private constructor(context: Context, private val target: View? 
     private var overrideTargetHeight = 0f
     private val overrideTargetPosition = PointF(0f, 0f)
 
-    private val density: Float
+    private val density: Float = context.resources.displayMetrics.density
     var isShowing: Boolean = false
         private set
 
@@ -69,7 +71,7 @@ class GuideView private constructor(context: Context, private val target: View? 
 
     private var mGuideListener: GuideListener? = null
     private var dismissType: DismissType? = null
-    private val mMessageView: GuideMessageView
+    private val mMessageView: GuideMessageView = GuideMessageView(context)
     private var showSemitransparentBackground: Boolean? = true
 
     private var position = Position.Top
@@ -80,22 +82,24 @@ class GuideView private constructor(context: Context, private val target: View? 
     init {
         setWillNotDraw(false)
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        density = context.resources.displayMetrics.density
-        init()
 
-        mMessageView = GuideMessageView(getContext())
-        mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding)
-        mMessageView.setColor(Color.WHITE)
+        initVariables()
+        setMessageView()
 
         indicator = Indicator(target, mMessageView)
-
-        addView(mMessageView, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
         val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { this.updateMeasures() }
         target?.viewTreeObserver?.addOnGlobalLayoutListener(layoutListener)
     }
 
-    private fun init() {
+    private fun setMessageView() {
+        mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding)
+        mMessageView.setColor(Color.WHITE)
+
+        addView(mMessageView, LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+    }
+
+    private fun initVariables() {
         indicatorHeight = INDICATOR_HEIGHT * density
         messageViewPadding = (MESSAGE_VIEW_PADDING * density).toInt()
         circleIndicatorSizeFinal = CIRCLE_INDICATOR_SIZE * density
