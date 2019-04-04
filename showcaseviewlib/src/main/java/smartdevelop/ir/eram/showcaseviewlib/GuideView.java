@@ -60,7 +60,7 @@ public class GuideView extends FrameLayout {
 
     private float overrideTargetWidth = 0;
     private float overrideTargetHeight = 0;
-    private final PointF overrideTargetPosition = new PointF(0,0);
+    private final PointF overrideTargetPosition = new PointF(0, 0);
 
     private float density;
     private boolean mIsShowing;
@@ -89,13 +89,6 @@ public class GuideView extends FrameLayout {
         density = context.getResources().getDisplayMetrics().density;
         init();
 
-        int[] locationTarget = new int[2];
-        target.getLocationOnScreen(locationTarget);
-        targetRect = new RectF(locationTarget[0],
-                locationTarget[1],
-                locationTarget[0] + target.getWidth(),
-                locationTarget[1] + target.getHeight());
-
         mMessageView = new GuideMessageView(getContext());
         mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding);
         mMessageView.setColor(Color.WHITE);
@@ -104,26 +97,31 @@ public class GuideView extends FrameLayout {
 
         addView(mMessageView, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        setMessageLocation(resolveMessageViewLocation());
-
-
-        ViewTreeObserver.OnGlobalLayoutListener layoutListener = () -> {
-            setMessageLocation(resolveMessageViewLocation());
-            int[] locationTarget1 = new int[2];
-            target.getLocationOnScreen(locationTarget1);
-
-            targetRect = new RectF(locationTarget1[0],
-                    locationTarget1[1],
-                    locationTarget1[0] + target.getWidth(),
-                    locationTarget1[1] + target.getHeight());
-
-            selfRect.set(getPaddingLeft(),
-                    getPaddingTop(),
-                    getWidth() - getPaddingRight(),
-                    getHeight() - getPaddingBottom());
-        };
-
+        ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::updateMeasures;
         view.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+    }
+
+    private void updateMeasures() {
+        int[] locationTarget1 = new int[2];
+        target.getLocationOnScreen(locationTarget1);
+
+        targetRect = createTargetRec(locationTarget1[0], locationTarget1[1]);
+
+        selfRect.set(getPaddingLeft(),
+                getPaddingTop(),
+                getWidth() - getPaddingRight(),
+                getHeight() - getPaddingBottom());
+
+        setMessageLocation(resolveMessageViewLocation());
+    }
+
+    private RectF createTargetRec(int x, int y) {
+        return new RectF(
+                x + overrideTargetPosition.getX(),
+                y + overrideTargetPosition.getY(),
+                x + target.getWidth() + overrideTargetWidth,
+                y + target.getHeight() + overrideTargetHeight
+        );
     }
 
     private void startAnimationSize() {
@@ -293,11 +291,11 @@ public class GuideView extends FrameLayout {
         switch (position) {
             case Top:
                 return new Point(
-                        (int) (targetRect.left - ((float)mMessageView.getWidth()/ 2) + (targetRect.width() / 2) + overrideX),
+                        (int) (targetRect.left - ((float) mMessageView.getWidth() / 2) + (targetRect.width() / 2) + overrideX),
                         (int) (targetRect.top - indicatorHeight - mMessageView.getHeight() + overrideY));
             case Bottom:
                 return new Point(
-                        (int) (targetRect.left - ((float)mMessageView.getWidth()/ 2) + (targetRect.width() / 2) + overrideX),
+                        (int) (targetRect.left - ((float) mMessageView.getWidth() / 2) + (targetRect.width() / 2) + overrideX),
                         (int) (targetRect.top + targetRect.height() + indicatorHeight + overrideY));
             case Left:
                 return new Point(
@@ -322,7 +320,7 @@ public class GuideView extends FrameLayout {
         startAnimation.setFillAfter(true);
         this.startAnimation(startAnimation);
 
-        startAnimation.setAnimationListener(new Animation.AnimationListener(){
+        startAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
 
@@ -339,13 +337,6 @@ public class GuideView extends FrameLayout {
             }
         });
         mIsShowing = true;
-
-//        this.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                startAnimationSize();
-//            }
-//        });
     }
 
     public void setTitle(String str) {
@@ -412,7 +403,7 @@ public class GuideView extends FrameLayout {
 
         private float overrideTargetWidth = 0;
         private float overrideTargetHeight = 0;
-        private PointF overrideTargetPosition = new PointF(0,0);
+        private PointF overrideTargetPosition = new PointF(0, 0);
 
         //region setters
         public Builder(Context context) {

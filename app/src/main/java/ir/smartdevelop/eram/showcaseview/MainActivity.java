@@ -72,7 +72,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTargetView(view4)
                 .setGravity(Gravity.center)
                 .setPosition(Position.Top)
-                .overrideYMessage(-230)
+                .overrideTargetWidth(200)
+                .overrideTargetHeight(20)
+                .overrideXTarget(-200)
+                .overrideYTarget(-20)
+                //.overrideYMessage(-230)
                 .overrideXMessage(-70)
                 .build();
 
