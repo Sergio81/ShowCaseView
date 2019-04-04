@@ -3,7 +3,6 @@ package smartdevelop.ir.eram.showcaseviewlib
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -105,7 +104,7 @@ class GuideWrapperView(context: Context) : FrameLayout(context), LifecycleObserv
 
         for(g: GuideView in guideViews){
             g.setSemitransparentBackground(false)
-            g.setDismissType(DismissType.message)
+            g.setDismissType(DismissType.Message)
             g.isChild = true
             g.show()
 

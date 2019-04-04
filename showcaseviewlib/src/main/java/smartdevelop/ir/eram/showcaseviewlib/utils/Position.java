@@ -5,5 +5,8 @@ package smartdevelop.ir.eram.showcaseviewlib.utils;
  */
 
 public enum Position{
-    Top, Bottom, Left, Right
+    Top,
+    Bottom,
+    Left,
+    Right
 }

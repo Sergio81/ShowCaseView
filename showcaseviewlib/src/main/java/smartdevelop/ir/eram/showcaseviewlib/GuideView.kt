@@ -13,10 +13,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
-import android.graphics.Xfermode
-import android.os.Build
 import android.text.Spannable
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +21,6 @@ import android.view.ViewTreeObserver
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
-import androidx.lifecycle.LifecycleObserver
 
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity
@@ -218,22 +214,22 @@ class GuideView private constructor(context: Context, private val target: View? 
         //if (!isChild)
         if (event.action == MotionEvent.ACTION_DOWN) {
             when (dismissType) {
-                DismissType.outside -> if (!isViewContains(mMessageView, x, y)) {
+                DismissType.Outside -> if (!isViewContains(mMessageView, x, y)) {
                     dismiss()
                     if (!isChild) success = true
                 }
 
-                DismissType.message -> if (isViewContains(mMessageView, x, y)) {
+                DismissType.Message -> if (isViewContains(mMessageView, x, y)) {
                     dismiss()
                     success = true
                 }
 
-                DismissType.anywhere -> {
+                DismissType.Anywhere -> {
                     dismiss()
                     if (!isChild) success = true
                 }
 
-                DismissType.targetView -> if (targetRect.contains(x, y)) {
+                DismissType.TargetView -> if (targetRect.contains(x, y)) {
                     target!!.performClick()
                     dismiss()
                     if (!isChild) success = true
@@ -474,7 +470,7 @@ class GuideView private constructor(context: Context, private val target: View? 
         /**
          * this method defining the type of dismissing function
          *
-         * @param dismissType should be one type of DismissType enum. for example: outside -> Dismissing with click on outside of MessageView
+         * @param dismissType should be one type of DismissType enum. for example: Outside -> Dismissing with click on Outside of MessageView
          */
         fun setDismissType(dismissType: DismissType): Builder {
             this.dismissType = dismissType
@@ -574,7 +570,7 @@ class GuideView private constructor(context: Context, private val target: View? 
 
         fun build(): GuideView {
             val guideView = GuideView(context, targetView!!)
-            guideView.dismissType = if (dismissType != null) dismissType else DismissType.targetView
+            guideView.dismissType = if (dismissType != null) dismissType else DismissType.TargetView
             guideView.showSemitransparentBackground = this.showSemitransparentBackground
             guideView.overrideX = this.overrideX
             guideView.overrideY = this.overrideY

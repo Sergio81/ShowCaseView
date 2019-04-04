@@ -28,7 +28,6 @@ class GuideMessageView internal constructor(context: Context) : LinearLayout(con
 
     private var location = IntArray(2)
 
-
     init {
 
         density = context.resources.displayMetrics.density

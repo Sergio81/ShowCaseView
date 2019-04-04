@@ -86,7 +86,7 @@ internal class Indicator(
                 currentFinalPosition.y = final.y
         }
 
-        // Line from the message to circle indicator
+        // Line from the Message to circle indicator
         canvas.drawLine(init.x, init.y, currentFinalPosition.x, currentFinalPosition.y, paintLine)
         // Indicator
         canvas.drawCircle(currentFinalPosition.x, currentFinalPosition.y, circleIndicatorSize, paintCircle)
