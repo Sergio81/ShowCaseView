@@ -2,13 +2,12 @@ package smartdevelop.ir.eram.showcaseviewlib
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.view.View
+import android.graphics.RectF
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.CIRCLE_INDICATOR_COLOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.CIRCLE_INNER_INDICATOR_COLOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.LINE_INDICATOR_COLOR
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.LINE_INDICATOR_WIDTH_SIZE
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MARGIN_INDICATOR
-import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MESSAGE_VIEW_PADDING
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.STROKE_CIRCLE_INDICATOR_SIZE
 import smartdevelop.ir.eram.showcaseviewlib.utils.PointF
 import smartdevelop.ir.eram.showcaseviewlib.utils.Position
@@ -17,44 +16,51 @@ import smartdevelop.ir.eram.showcaseviewlib.utils.Position
  * Created by Sergio Fabian Aguilar Vega on 4/03/2019
  */
 
-internal class Indicator(
-        private val view: View?,
-        private val messageView: GuideMessageView
-) {
-    var offset = 0.5f
-    var init: PointF = PointF()
-    var final: PointF = PointF()
-    private var currentFinalPosition = PointF()
-
-    var position = Position.Bottom
-        set(value) {
-            field = value
-            updatePosition()
-        }
-
-    private val paintLine = Paint()
-    private val paintCircle = Paint()
-    private val paintCircleInner = Paint()
-
-    private var lineIndicatorWidthSize: Float = LINE_INDICATOR_WIDTH_SIZE * messageView.density
-    private var strokeCircleWidth: Float = STROKE_CIRCLE_INDICATOR_SIZE * messageView.density
+internal class Indicator {
+    //region Properties
+    private val init: PointF
+        get() = getInitialPoint()
+    private val final: PointF
+        get() = getFinalPoint()
 
     var circleIndicatorSize = 0f
     var circleInnerIndicatorSize = 0f
     var locked = false
 
-    fun updatePosition() {
-        val viewPosition = IntArray(2)
+    var position = Position.Bottom
+    //endregion
 
-        view?.getLocationOnScreen(viewPosition)
+    //region Private Variables
+    private var viewRect: RectF = RectF(0f, 0f, 0f, 0f)
+    private var messageRect: RectF = RectF(0f, 0f, 0f, 0f)
 
-        if (viewPosition.size == 2) {
-            init = getInitialPoint(viewPosition[0].toFloat(), viewPosition[1].toFloat())
-            final = getFinalPoint(viewPosition[0].toFloat(), viewPosition[1].toFloat())
-            if (!locked) {
-                currentFinalPosition.x = init.x
-                currentFinalPosition.y = init.y
-            }
+    private var offset = 0.5f
+    private var currentFinalPosition = PointF()
+
+    private val paintLine = Paint()
+    private val paintCircle = Paint()
+    private val paintCircleInner = Paint()
+
+    private var lineIndicatorWidthSize: Float = 0f
+    private var strokeCircleWidth: Float = 0f
+    //endregion
+
+    init {
+        initVariables()
+    }
+
+    private fun initVariables() {
+        lineIndicatorWidthSize = LINE_INDICATOR_WIDTH_SIZE.toFloat() // * messageView!!.density
+        strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE.toFloat() // * messageView!!.density
+    }
+
+    fun updatePosition(targetRect: RectF, messageRect: RectF) {
+        this.viewRect.set(targetRect)
+        this.messageRect.set(messageRect)
+
+        if (!locked) {
+            currentFinalPosition.x = init.x
+            currentFinalPosition.y = init.y
         }
     }
 
@@ -103,104 +109,89 @@ internal class Indicator(
         }
     }
 
-    fun getInitAnimation(): Float =
-            when (position) {
-                Position.Top, Position.Bottom -> init.y
-                Position.Left, Position.Right -> init.x
-            }
-
-    fun getFinalAnimation(): Float =
-            when (position) {
-                Position.Top, Position.Bottom -> final.y
-                Position.Left, Position.Right -> final.x
-            }
-
-    private fun getOverflow(viewX: Float, viewY: Float): Float {
-        if(view != null){
-            val centerView = PointF(
-                    view.width / 2f,
-                    view.height / 2f
-            )
-            val tolerance = 0.3f
-            val centerMessagePoint = PointF(
-                    messageView.x + (messageView.width / 2f),
-                    messageView.y + (messageView.height / 2f)
-            )
-            val centerViewPoint = PointF(
-                    viewX + (view.width / 2f),
-                    viewY + (view.height / 2f)
-            )
-
-            val viewTolerance = PointF(
-                    view.width * tolerance,
-                    view.height * tolerance
-            )
-
-            return when (position) {
-                Position.Top,
-                Position.Bottom -> when {
-                    centerMessagePoint.x in centerViewPoint.x - viewTolerance.x..centerViewPoint.x + viewTolerance.x ->
-                        0f // middle
-                    centerMessagePoint.x in 0f..centerViewPoint.x ->
-                        -(centerView.x - 20) // left
-                    else ->
-                        centerView.x - 20 // right
-                }
-                Position.Left,
-                Position.Right -> when {
-                    centerMessagePoint.y in centerViewPoint.y - viewTolerance.y..centerViewPoint.y + viewTolerance.y ->
-                        0f // middle
-                    centerMessagePoint.y in 0f..centerViewPoint.y ->
-                        -(centerView.y - 20) // top
-                    else ->
-                        centerView.y - 10 // bottom
-                }
-            }
-        }else{
-            return 0f
-        }
-
+    fun getInitAnimation(): Float = when (position) {
+        Position.Top, Position.Bottom -> init.y
+        Position.Left, Position.Right -> init.x
     }
 
-    private fun getInitialPoint(viewX: Float, viewY: Float): PointF{
-        if(view != null){
-            return when (position) {
-                Position.Top -> PointF(
-                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
-                        messageView.y + messageView.height - MESSAGE_VIEW_PADDING)
-                Position.Bottom -> PointF(
-                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
-                        messageView.y + MESSAGE_VIEW_PADDING)
-                Position.Left -> PointF(
-                        messageView.x + messageView.width - MESSAGE_VIEW_PADDING,
-                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
-                Position.Right -> PointF(
-                        messageView.x + MESSAGE_VIEW_PADDING,
-                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
+    fun getFinalAnimation(): Float = when (position) {
+        Position.Top, Position.Bottom -> final.y
+        Position.Left, Position.Right -> final.x
+    }
+
+    private fun getOverflow(): Float {
+        val centerView = PointF(
+                viewRect.width() / 2f,
+                viewRect.height() / 2f
+        )
+        val tolerance = 0.3f
+        val centerMessagePoint = PointF(
+                messageRect.left + (messageRect.width() / 2f),
+                messageRect.top + (messageRect.height() / 2f)
+        )
+        val centerViewPoint = PointF(
+                viewRect.left + (viewRect.width() / 2f),
+                viewRect.top + (viewRect.height() / 2f)
+        )
+        val viewTolerance = PointF(
+                viewRect.width() * tolerance,
+                viewRect.height() * tolerance
+        )
+
+        return when (position) {
+            Position.Top,
+            Position.Bottom -> when {
+                centerMessagePoint.x in centerViewPoint.x - viewTolerance.x..centerViewPoint.x + viewTolerance.x ->
+                    0f // middle
+                centerMessagePoint.x in 0f..centerViewPoint.x ->
+                    -(centerView.x - 20) // left
+                else ->
+                    centerView.x - 20 // right
             }
-        }else{
-            return PointF(0f,0f)
+            Position.Left,
+            Position.Right -> when {
+                centerMessagePoint.y in centerViewPoint.y - viewTolerance.y..centerViewPoint.y + viewTolerance.y ->
+                    0f // middle
+                centerMessagePoint.y in 0f..centerViewPoint.y ->
+                    -(centerView.y - 20) // top
+                else ->
+                    centerView.y - 10 // bottom
+            }
         }
     }
 
-    private fun getFinalPoint(viewX: Float, viewY: Float): PointF {
-        if (view != null) {
-            return when (position) {
-                Position.Top -> PointF(
-                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
-                        viewY - (MARGIN_INDICATOR))
-                Position.Bottom -> PointF(
-                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
-                        viewY + view.height + MARGIN_INDICATOR)
-                Position.Left -> PointF(
-                        viewX - (MARGIN_INDICATOR),
-                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
-                Position.Right -> PointF(
-                        viewX + view.width + MARGIN_INDICATOR,
-                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
-            }
-        }else{
-            return PointF(0f,0f)
+    private fun getInitialPoint(): PointF {
+        val marginSpace = 10
+        return when (position) {
+            Position.Top -> PointF(
+                    viewRect.left + (viewRect.width() * offset) + getOverflow(),
+                    messageRect.bottom - marginSpace)
+            Position.Bottom -> PointF(
+                    viewRect.left + (viewRect.width() * offset) + getOverflow(),
+                    messageRect.top + marginSpace)
+            Position.Left -> PointF(
+                    messageRect.right - marginSpace,
+                    viewRect.top + (viewRect.height() * offset) + getOverflow())
+            Position.Right -> PointF(
+                    messageRect.left + marginSpace,
+                    viewRect.top + (viewRect.height() * offset) + getOverflow())
+        }
+    }
+
+    private fun getFinalPoint(): PointF {
+        return when (position) {
+            Position.Top -> PointF(
+                    viewRect.left + (viewRect.width() * offset) + getOverflow(),
+                    viewRect.top - (MARGIN_INDICATOR))
+            Position.Bottom -> PointF(
+                    viewRect.left + (viewRect.width() * offset) + getOverflow(),
+                    viewRect.top + viewRect.height() + MARGIN_INDICATOR)
+            Position.Left -> PointF(
+                    viewRect.left - (MARGIN_INDICATOR),
+                    viewRect.top + (viewRect.height() * offset) + getOverflow())
+            Position.Right -> PointF(
+                    viewRect.right + (MARGIN_INDICATOR),
+                    viewRect.top + (viewRect.height() * offset) + getOverflow())
         }
     }
 

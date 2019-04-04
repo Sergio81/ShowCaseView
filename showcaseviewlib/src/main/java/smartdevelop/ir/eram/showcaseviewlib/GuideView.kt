@@ -14,6 +14,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.text.Spannable
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -41,7 +42,7 @@ import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.SIZE_ANIMA
  * Updated by Sergio Fabian Aguilar Vega on 4/03/2019
  */
 
-class GuideView private constructor(context: Context, private val target: View? = null) : FrameLayout(context) {
+class GuideView private constructor(context: Context, private val target: View) : FrameLayout(context) {
 
     //region Global variables
     private val X_FER_MODE_CLEAR = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
@@ -49,15 +50,15 @@ class GuideView private constructor(context: Context, private val target: View? 
     private val selfPaint = Paint()
     private val selfRect = Rect()
 
-    internal val targetPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    internal lateinit var targetRect: RectF
-
     private var overrideX = 0f
     private var overrideY = 0f
 
     private var overrideTargetWidth = 0f
     private var overrideTargetHeight = 0f
     private val overrideTargetPosition = PointF(0f, 0f)
+
+    internal val targetPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    internal var targetRect: RectF = createTargetRec(0, 0)
 
     private val density: Float = context.resources.displayMetrics.density
     var isShowing: Boolean = false
@@ -71,12 +72,15 @@ class GuideView private constructor(context: Context, private val target: View? 
 
     private var mGuideListener: GuideListener? = null
     private var dismissType: DismissType? = null
-    private val mMessageView: GuideMessageView = GuideMessageView(context)
     private var showSemitransparentBackground: Boolean? = true
 
     private var position = Position.Top
-    private val indicator: Indicator
     internal var isChild: Boolean = false
+
+    // Components
+    private val mMessageView: GuideMessageView = GuideMessageView(context)
+    private val indicator = Indicator()
+
     //endregion
 
     init {
@@ -86,10 +90,7 @@ class GuideView private constructor(context: Context, private val target: View? 
         initVariables()
         setMessageView()
 
-        indicator = Indicator(target, mMessageView)
-
-        val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { this.updateMeasures() }
-        target?.viewTreeObserver?.addOnGlobalLayoutListener(layoutListener)
+        target.viewTreeObserver.addOnGlobalLayoutListener { this.updateMeasures() }
     }
 
     private fun setMessageView() {
@@ -109,24 +110,26 @@ class GuideView private constructor(context: Context, private val target: View? 
 
     private fun updateMeasures() {
         val locationTarget1 = IntArray(2)
-        target!!.getLocationOnScreen(locationTarget1)
+        target.getLocationOnScreen(locationTarget1)
 
         targetRect = createTargetRec(locationTarget1[0], locationTarget1[1])
 
-        selfRect.set(paddingLeft,
+        selfRect.set(
+                paddingLeft,
                 paddingTop,
                 width - paddingRight,
                 height - paddingBottom)
 
         setMessageLocation(resolveMessageViewLocation())
+        indicator.updatePosition(targetRect, mMessageView.mRect)
     }
 
     private fun createTargetRec(x: Int, y: Int): RectF {
         return RectF(
                 x + overrideTargetPosition.x,
                 y + overrideTargetPosition.y,
-                x.toFloat() + target!!.width.toFloat() + overrideTargetWidth,
-                y.toFloat() + target!!.height.toFloat() + overrideTargetHeight
+                x.toFloat() + target.width.toFloat() + overrideTargetWidth,
+                y.toFloat() + target.height.toFloat() + overrideTargetHeight
         )
     }
 
@@ -185,21 +188,19 @@ class GuideView private constructor(context: Context, private val target: View? 
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (target != null) {
 
-            // Background Color
-            if (showSemitransparentBackground!!) {
-                selfPaint.color = BACKGROUND_COLOR
-                selfPaint.style = Paint.Style.FILL
-                selfPaint.isAntiAlias = true
-                canvas.drawRect(selfRect, selfPaint)
-            }
-
-            indicator.draw(canvas)
-
-            if (showSemitransparentBackground!!)
-                canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT.toFloat(), RADIUS_SIZE_TARGET_RECT.toFloat(), targetPaint)
+        // Background Color
+        if (showSemitransparentBackground!!) {
+            selfPaint.color = BACKGROUND_COLOR
+            selfPaint.style = Paint.Style.FILL
+            selfPaint.isAntiAlias = true
+            canvas.drawRect(selfRect, selfPaint)
         }
+
+        indicator.draw(canvas)
+
+        if (showSemitransparentBackground!!)
+            canvas.drawRoundRect(targetRect, RADIUS_SIZE_TARGET_RECT.toFloat(), RADIUS_SIZE_TARGET_RECT.toFloat(), targetPaint)
     }
 
     fun dismiss() {
@@ -234,7 +235,7 @@ class GuideView private constructor(context: Context, private val target: View? 
                 }
 
                 DismissType.TargetView -> if (targetRect.contains(x, y)) {
-                    target!!.performClick()
+                    target.performClick()
                     dismiss()
                     if (!isChild) success = true
                 }
@@ -256,9 +257,7 @@ class GuideView private constructor(context: Context, private val target: View? 
     }
 
     private fun setMessageLocation(p: Point) {
-        mMessageView.x = p.x.toFloat()
-        mMessageView.y = p.y.toFloat()
-        indicator.updatePosition()
+        mMessageView.updatePosition(p.x.toFloat(), p.y.toFloat())
         postInvalidate()
     }
 

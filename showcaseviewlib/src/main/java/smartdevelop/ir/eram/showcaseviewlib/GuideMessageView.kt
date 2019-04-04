@@ -21,7 +21,7 @@ class GuideMessageView internal constructor(context: Context) : LinearLayout(con
     internal var density: Float = 0.toFloat()
 
     private val mPaint: Paint
-    private val mRect: RectF
+    internal val mRect: RectF
 
     private val mTitleTextView: TextView
     private val mContentTextView: TextView
@@ -29,7 +29,6 @@ class GuideMessageView internal constructor(context: Context) : LinearLayout(con
     private var location = IntArray(2)
 
     init {
-
         density = context.resources.displayMetrics.density
         setWillNotDraw(false)
         orientation = LinearLayout.VERTICAL
@@ -55,6 +54,12 @@ class GuideMessageView internal constructor(context: Context) : LinearLayout(con
         mContentTextView.setPadding(padding, paddingBetween, padding, padding)
         mContentTextView.gravity = Gravity.CENTER
         addView(mContentTextView, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+    }
+
+    fun updatePosition(x:Float, y:Float){
+        this.x = x
+        this.y = y
+        mRect.set(x, y, x + width, y + height)
     }
 
     fun setTitle(title: String?) {

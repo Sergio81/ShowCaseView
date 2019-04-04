@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setGravity(Gravity.Center)
                 .setTargetView(view2)
                 .setPosition(Position.Right)
-                .overrideYMessage(-40)
+                .overrideYMessage(-60)
                 .build();
 
         GuideView guideView3 = new GuideView.Builder(this)
@@ -66,18 +66,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .overrideXMessage(-40)
                 .build();
 
+        float h = 80;
         GuideView guideView4 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text 4")
                 .setContentText("Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut ")
                 .setTargetView(view4)
                 .setGravity(Gravity.Center)
                 .setPosition(Position.Top)
-                .overrideTargetWidth(200)
-                .overrideTargetHeight(20)
-                .overrideXTarget(-200)
-                .overrideYTarget(-20)
+//                .overrideTargetWidth(200)
+                .overrideTargetHeight(h)
+//                .overrideXTarget(-200)
+                .overrideYTarget(-h/2)
                 //.overrideYMessage(-230)
-                .overrideXMessage(-70)
+//                .overrideXMessage(-70)
                 .build();
 
         GuideWrapperView sad = new GuideWrapperView.Builder(this)
