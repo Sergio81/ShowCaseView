@@ -18,7 +18,7 @@ import smartdevelop.ir.eram.showcaseviewlib.utils.Position
  */
 
 internal class Indicator(
-        private val view: View,
+        private val view: View?,
         private val messageView: GuideMessageView
 ) {
     var offset = 0.5f
@@ -46,7 +46,7 @@ internal class Indicator(
     fun updatePosition() {
         val viewPosition = IntArray(2)
 
-        view.getLocationOnScreen(viewPosition)
+        view?.getLocationOnScreen(viewPosition)
 
         if (viewPosition.size == 2) {
             init = getInitialPoint(viewPosition[0].toFloat(), viewPosition[1].toFloat())
@@ -116,49 +116,55 @@ internal class Indicator(
             }
 
     private fun getOverflow(viewX: Float, viewY: Float): Float {
-        val centerView = PointF(
-                view.width / 2f,
-                view.height / 2f
-        )
-        val tolerance = 0.3f
-        val centerMessagePoint = PointF(
-                messageView.x + (messageView.width / 2f),
-                messageView.y + (messageView.height / 2f)
-        )
-        val centerViewPoint = PointF(
-                viewX + (view.width / 2f),
-                viewY + (view.height / 2f)
-        )
+        if(view != null){
+            val centerView = PointF(
+                    view.width / 2f,
+                    view.height / 2f
+            )
+            val tolerance = 0.3f
+            val centerMessagePoint = PointF(
+                    messageView.x + (messageView.width / 2f),
+                    messageView.y + (messageView.height / 2f)
+            )
+            val centerViewPoint = PointF(
+                    viewX + (view.width / 2f),
+                    viewY + (view.height / 2f)
+            )
 
-        val viewTolerance = PointF(
-                view.width * tolerance,
-                view.height * tolerance
-        )
+            val viewTolerance = PointF(
+                    view.width * tolerance,
+                    view.height * tolerance
+            )
 
-        return when (position) {
-            Position.Top,
-            Position.Bottom -> when {
-                centerMessagePoint.x in centerViewPoint.x - viewTolerance.x..centerViewPoint.x + viewTolerance.x ->
-                    0f // middle
-                centerMessagePoint.x in 0f..centerViewPoint.x ->
-                    -(centerView.x - 20) // left
-                else ->
-                    centerView.x - 20 // right
+            return when (position) {
+                Position.Top,
+                Position.Bottom -> when {
+                    centerMessagePoint.x in centerViewPoint.x - viewTolerance.x..centerViewPoint.x + viewTolerance.x ->
+                        0f // middle
+                    centerMessagePoint.x in 0f..centerViewPoint.x ->
+                        -(centerView.x - 20) // left
+                    else ->
+                        centerView.x - 20 // right
+                }
+                Position.Left,
+                Position.Right -> when {
+                    centerMessagePoint.y in centerViewPoint.y - viewTolerance.y..centerViewPoint.y + viewTolerance.y ->
+                        0f // middle
+                    centerMessagePoint.y in 0f..centerViewPoint.y ->
+                        -(centerView.y - 20) // top
+                    else ->
+                        centerView.y - 10 // bottom
+                }
             }
-            Position.Left,
-            Position.Right -> when {
-                centerMessagePoint.y in centerViewPoint.y - viewTolerance.y..centerViewPoint.y + viewTolerance.y ->
-                    0f // middle
-                centerMessagePoint.y in 0f..centerViewPoint.y ->
-                    -(centerView.y - 20) // top
-                else ->
-                    centerView.y - 10 // bottom
-            }
+        }else{
+            return 0f
         }
+
     }
 
-    private fun getInitialPoint(viewX: Float, viewY: Float): PointF =
-            when (position) {
+    private fun getInitialPoint(viewX: Float, viewY: Float): PointF{
+        if(view != null){
+            return when (position) {
                 Position.Top -> PointF(
                         view.x + (view.width * offset) + getOverflow(viewX, viewY),
                         messageView.y + messageView.height - MESSAGE_VIEW_PADDING)
@@ -172,21 +178,29 @@ internal class Indicator(
                         messageView.x + MESSAGE_VIEW_PADDING,
                         viewY + (view.height * offset) + getOverflow(viewX, viewY))
             }
+        }else{
+            return PointF(0f,0f)
+        }
+    }
 
     private fun getFinalPoint(viewX: Float, viewY: Float): PointF {
-        return when (position) {
-            Position.Top -> PointF(
-                    view.x + (view.width * offset) + getOverflow(viewX, viewY),
-                    viewY - (MARGIN_INDICATOR))
-            Position.Bottom -> PointF(
-                    view.x + (view.width * offset) + getOverflow(viewX, viewY),
-                    viewY + view.height + MARGIN_INDICATOR)
-            Position.Left -> PointF(
-                    viewX - (MARGIN_INDICATOR),
-                    viewY + (view.height * offset) + getOverflow(viewX, viewY))
-            Position.Right -> PointF(
-                    viewX + view.width + MARGIN_INDICATOR,
-                    viewY + (view.height * offset) + getOverflow(viewX, viewY))
+        if (view != null) {
+            return when (position) {
+                Position.Top -> PointF(
+                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
+                        viewY - (MARGIN_INDICATOR))
+                Position.Bottom -> PointF(
+                        view.x + (view.width * offset) + getOverflow(viewX, viewY),
+                        viewY + view.height + MARGIN_INDICATOR)
+                Position.Left -> PointF(
+                        viewX - (MARGIN_INDICATOR),
+                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
+                Position.Right -> PointF(
+                        viewX + view.width + MARGIN_INDICATOR,
+                        viewY + (view.height * offset) + getOverflow(viewX, viewY))
+            }
+        }else{
+            return PointF(0f,0f)
         }
     }
 

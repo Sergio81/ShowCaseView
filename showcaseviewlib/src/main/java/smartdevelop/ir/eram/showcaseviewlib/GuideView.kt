@@ -24,6 +24,7 @@ import android.view.ViewTreeObserver
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
+import androidx.lifecycle.LifecycleObserver
 
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity
@@ -44,8 +45,8 @@ import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.SIZE_ANIMA
  * Updated by Sergio Fabian Aguilar Vega on 4/03/2019
  */
 
-class GuideView
-private constructor(context: Context, private val target: View?) : FrameLayout(context) {
+class GuideView private constructor(context: Context, private val target: View? = null) : FrameLayout(context) {
+
     //region Global variables
     private val X_FER_MODE_CLEAR = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
 
@@ -53,7 +54,6 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
     internal val targetPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     internal lateinit var targetRect: RectF
     private val selfRect = Rect()
-
     private var overrideX = 0f
     private var overrideY = 0f
 
@@ -79,9 +79,9 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
     private var position = Position.Top
     private val indicator: Indicator
     internal var isChild: Boolean = false
+    //endregion
 
     init {
-
         setWillNotDraw(false)
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
         density = context.resources.displayMetrics.density
@@ -91,12 +91,12 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
         mMessageView.setPadding(messageViewPadding, messageViewPadding, messageViewPadding, messageViewPadding)
         mMessageView.setColor(Color.WHITE)
 
-        indicator = Indicator(target!!, mMessageView)
+        indicator = Indicator(target, mMessageView)
 
         addView(mMessageView, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
         val layoutListener = ViewTreeObserver.OnGlobalLayoutListener { this.updateMeasures() }
-        target.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+        target?.viewTreeObserver?.addOnGlobalLayoutListener(layoutListener)
     }
 
     private fun init() {
@@ -126,21 +126,21 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
                 x + overrideTargetPosition.x,
                 y + overrideTargetPosition.y,
                 x.toFloat() + target!!.width.toFloat() + overrideTargetWidth,
-                y.toFloat() + target.height.toFloat() + overrideTargetHeight
+                y.toFloat() + target!!.height.toFloat() + overrideTargetHeight
         )
     }
 
     private fun startAnimationSize() {
         if (!isPerformedAnimationSize) {
             val circleSizeAnimator = ValueAnimator.ofFloat(0f, circleIndicatorSizeFinal)
-            circleSizeAnimator.addUpdateListener { valueAnimator ->
+            circleSizeAnimator.addUpdateListener {
                 indicator.circleIndicatorSize = circleSizeAnimator.animatedValue as Float
                 indicator.circleInnerIndicatorSize = circleSizeAnimator.animatedValue as Float - density
                 postInvalidate()
             }
 
             val linePositionAnimator = ValueAnimator.ofFloat(indicator.getInitAnimation(), indicator.getFinalAnimation())
-            linePositionAnimator.addUpdateListener { valueAnimator ->
+            linePositionAnimator.addUpdateListener {
                 indicator.setCurrentAnimatedPosition(linePositionAnimator.animatedValue as Float)
                 postInvalidate()
             }
@@ -148,6 +148,7 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
             linePositionAnimator.duration = SIZE_ANIMATION_DURATION.toLong()
             indicator.locked = true
             linePositionAnimator.start()
+
             linePositionAnimator.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationEnd(animator: Animator) {
                     circleSizeAnimator.duration = SIZE_ANIMATION_DURATION.toLong()
@@ -219,7 +220,7 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
             when (dismissType) {
                 DismissType.outside -> if (!isViewContains(mMessageView, x, y)) {
                     dismiss()
-                    if ((!isChild)!!) success = true
+                    if (!isChild) success = true
                 }
 
                 DismissType.message -> if (isViewContains(mMessageView, x, y)) {
@@ -229,13 +230,13 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
 
                 DismissType.anywhere -> {
                     dismiss()
-                    if ((!isChild)!!) success = true
+                    if (!isChild) success = true
                 }
 
                 DismissType.targetView -> if (targetRect.contains(x, y)) {
                     target!!.performClick()
                     dismiss()
-                    if ((!isChild)!!) success = true
+                    if (!isChild) success = true
                 }
             }
             return success
@@ -261,22 +262,19 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
         postInvalidate()
     }
 
-    private fun resolveMessageViewLocation(): Point {
-        when (position) {
-            Position.Top -> return Point(
-                    (targetRect.left - mMessageView.width.toFloat() / 2 + targetRect.width() / 2 + overrideX).toInt(),
-                    (targetRect.top - indicatorHeight - mMessageView.height.toFloat() + overrideY).toInt())
-            Position.Bottom -> return Point(
-                    (targetRect.left - mMessageView.width.toFloat() / 2 + targetRect.width() / 2 + overrideX).toInt(),
-                    (targetRect.top + targetRect.height() + indicatorHeight + overrideY).toInt())
-            Position.Left -> return Point(
-                    (targetRect.left - mMessageView.width.toFloat() - indicatorHeight + overrideX).toInt(),
-                    (targetRect.top + targetRect.height() / 2 - mMessageView.height / 2 + overrideY).toInt())
-            Position.Right -> return Point(
-                    (targetRect.right + indicatorHeight + overrideX).toInt(),
-                    (targetRect.top + targetRect.height() / 2 - mMessageView.height / 2 + overrideY).toInt())
-            else -> return Point((targetRect.right + indicatorHeight + overrideX).toInt(), (targetRect.top + targetRect.height() / 2 - mMessageView.height / 2 + overrideY).toInt())
-        }
+    private fun resolveMessageViewLocation(): Point = when (position) {
+        Position.Top -> Point(
+                (targetRect.left - mMessageView.width.toFloat() / 2 + targetRect.width() / 2 + overrideX).toInt(),
+                (targetRect.top - indicatorHeight - mMessageView.height.toFloat() + overrideY).toInt())
+        Position.Bottom -> Point(
+                (targetRect.left - mMessageView.width.toFloat() / 2 + targetRect.width() / 2 + overrideX).toInt(),
+                (targetRect.top + targetRect.height() + indicatorHeight + overrideY).toInt())
+        Position.Left -> Point(
+                (targetRect.left - mMessageView.width.toFloat() - indicatorHeight + overrideX).toInt(),
+                (targetRect.top + targetRect.height() / 2 - mMessageView.height / 2 + overrideY).toInt())
+        Position.Right -> Point(
+                (targetRect.right + indicatorHeight + overrideX).toInt(),
+                (targetRect.top + targetRect.height() / 2 - mMessageView.height / 2 + overrideY).toInt())
     }
 
     fun show() {
@@ -306,6 +304,7 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
         isShowing = true
     }
 
+    //region Setters
     fun setTitle(str: String?) {
         mMessageView.setTitle(str)
     }
@@ -346,9 +345,9 @@ private constructor(context: Context, private val target: View?) : FrameLayout(c
     fun setDismissType(dismissType: DismissType) {
         this.dismissType = dismissType
     }
+    //endregion
 
-    class Builder
-    (private val context: Context) {
+    class Builder(private val context: Context) {
         private var targetView: View? = null
         private var title: String? = null
         private var contentText: String? = null
