@@ -50,8 +50,8 @@ internal class Indicator {
     }
 
     private fun initVariables() {
-        lineIndicatorWidthSize = LINE_INDICATOR_WIDTH_SIZE.toFloat() // * messageView!!.density
-        strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE.toFloat() // * messageView!!.density
+        lineIndicatorWidthSize = LINE_INDICATOR_WIDTH_SIZE.toFloat()
+        strokeCircleWidth = STROKE_CIRCLE_INDICATOR_SIZE.toFloat()
     }
 
     fun updatePosition(targetRect: RectF, messageRect: RectF) {
@@ -75,7 +75,7 @@ internal class Indicator {
         paintCircle.style = Paint.Style.STROKE
         paintCircle.color = CIRCLE_INDICATOR_COLOR
         paintCircle.strokeCap = Paint.Cap.ROUND
-        paintCircle.strokeWidth = strokeCircleWidth
+        paintCircle.strokeWidth = strokeCircleWidth + 5
         paintCircle.isAntiAlias = true
 
         // Inner Circle Indicator
@@ -83,8 +83,6 @@ internal class Indicator {
         paintCircleInner.color = CIRCLE_INNER_INDICATOR_COLOR
         paintCircleInner.isAntiAlias = true
 
-
-        //canvas.drawLine(init.x, init.y, final.x, final.y, paintLine)
         when (position) {
             Position.Top, Position.Bottom ->
                 currentFinalPosition.x = final.x
@@ -95,9 +93,9 @@ internal class Indicator {
         // Line from the Message to circle indicator
         canvas.drawLine(init.x, init.y, currentFinalPosition.x, currentFinalPosition.y, paintLine)
         // Indicator
-        canvas.drawCircle(currentFinalPosition.x, currentFinalPosition.y, circleIndicatorSize, paintCircle)
+        canvas.drawCircle(currentFinalPosition.x, currentFinalPosition.y, circleIndicatorSize , paintCircle)
         // Inner Indicator
-        canvas.drawCircle(currentFinalPosition.x, currentFinalPosition.y, circleInnerIndicatorSize, paintCircleInner)
+        canvas.drawCircle(currentFinalPosition.x, currentFinalPosition.y, circleInnerIndicatorSize , paintCircleInner)
     }
 
     fun setCurrentAnimatedPosition(newPosition: Float) {
@@ -120,11 +118,11 @@ internal class Indicator {
     }
 
     private fun getOverflow(): Float {
+        val tolerance = 0.3f
         val centerView = PointF(
                 viewRect.width() / 2f,
                 viewRect.height() / 2f
         )
-        val tolerance = 0.3f
         val centerMessagePoint = PointF(
                 messageRect.left + (messageRect.width() / 2f),
                 messageRect.top + (messageRect.height() / 2f)
@@ -142,20 +140,20 @@ internal class Indicator {
             Position.Top,
             Position.Bottom -> when {
                 centerMessagePoint.x in centerViewPoint.x - viewTolerance.x..centerViewPoint.x + viewTolerance.x ->
-                    0f // middle
+                    0f                      // middle
                 centerMessagePoint.x in 0f..centerViewPoint.x ->
-                    -(centerView.x - 20) // left
+                    -(centerView.x - 20)    // left
                 else ->
-                    centerView.x - 20 // right
+                    centerView.x - 20       // right
             }
             Position.Left,
             Position.Right -> when {
                 centerMessagePoint.y in centerViewPoint.y - viewTolerance.y..centerViewPoint.y + viewTolerance.y ->
-                    0f // middle
+                    0f                      // middle
                 centerMessagePoint.y in 0f..centerViewPoint.y ->
-                    -(centerView.y - 20) // top
+                    -(centerView.y - 20)    // top
                 else ->
-                    centerView.y - 10 // bottom
+                    centerView.y - 10       // bottom
             }
         }
     }
@@ -194,5 +192,4 @@ internal class Indicator {
                     viewRect.top + (viewRect.height() * offset) + getOverflow())
         }
     }
-
 }

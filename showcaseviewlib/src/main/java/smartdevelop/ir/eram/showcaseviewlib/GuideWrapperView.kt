@@ -32,19 +32,14 @@ class GuideWrapperView(context: Context) : FrameLayout(context), LifecycleObserv
         // this allow X_FER_MODE_CLEAR works
         setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
-        viewTreeObserver.addOnPreDrawListener(
-                object : ViewTreeObserver.OnPreDrawListener {
-                    override fun onPreDraw(): Boolean {
-                        viewTreeObserver.removeOnPreDrawListener(this)
-
-                        selfRect.set(paddingLeft,
-                                paddingTop,
-                                width - paddingRight,
-                                height - paddingBottom)
-
-                        return true
-                    }
-                })
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                selfRect.set(paddingLeft, paddingTop,
+                        width - paddingRight,
+                        height - paddingBottom)
+            }
+        })
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -60,8 +55,8 @@ class GuideWrapperView(context: Context) : FrameLayout(context), LifecycleObserv
         for(g: GuideView in guideViews){
             canvas.drawRoundRect(
                     g.targetRect,
-                    RADIUS_SIZE_TARGET_RECT.toFloat(),
-                    RADIUS_SIZE_TARGET_RECT.toFloat(),
+                    RADIUS_SIZE_TARGET_RECT,
+                    RADIUS_SIZE_TARGET_RECT,
                     g.targetPaint)
         }
     }

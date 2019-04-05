@@ -90,7 +90,12 @@ class GuideView private constructor(context: Context, private val target: View) 
         initVariables()
         setMessageView()
 
-        target.viewTreeObserver.addOnGlobalLayoutListener { this.updateMeasures() }
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                this@GuideView.updateMeasures()
+            }
+        })
     }
 
     private fun setMessageView() {
@@ -188,7 +193,6 @@ class GuideView private constructor(context: Context, private val target: View) 
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
         // Background Color
         if (showSemitransparentBackground!!) {
             selfPaint.color = BACKGROUND_COLOR
@@ -282,9 +286,11 @@ class GuideView private constructor(context: Context, private val target: View) 
 
         ((context as Activity).window.decorView as ViewGroup).addView(this)
 
-        val startAnimation = AlphaAnimation(0.0f, 1.0f)
-        startAnimation.duration = APPEARING_ANIMATION_DURATION.toLong()
-        startAnimation.fillAfter = true
+        val startAnimation = AlphaAnimation(0.0f, 1.0f).apply {
+            duration = APPEARING_ANIMATION_DURATION.toLong()
+            fillAfter = true
+        }
+
         this.startAnimation(startAnimation)
 
         startAnimation.setAnimationListener(object : Animation.AnimationListener {
@@ -313,7 +319,7 @@ class GuideView private constructor(context: Context, private val target: View) 
         indicator.position = position
     }
 
-    fun setContentText(str: String) {
+    fun setContentText(str: String?) {
         mMessageView.setContentText(str)
     }
 
@@ -587,9 +593,8 @@ class GuideView private constructor(context: Context, private val target: View) 
 
             guideView.setPosition(this.position)
             guideView.setTitle(title)
+            guideView.setContentText(contentText)
 
-            if (contentText != null)
-                guideView.setContentText(contentText!!)
             if (titleTextSize != 0)
                 guideView.setTitleTextSize(titleTextSize)
             if (contentTextSize != 0)

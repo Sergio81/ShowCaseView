@@ -14,7 +14,7 @@ class GlobalVariables {
         internal const val CIRCLE_INDICATOR_SIZE = 6
         internal const val LINE_INDICATOR_WIDTH_SIZE = 3
         internal const val STROKE_CIRCLE_INDICATOR_SIZE = 3
-        internal const val RADIUS_SIZE_TARGET_RECT = 15
+        internal const val RADIUS_SIZE_TARGET_RECT = 8f
         internal const val MARGIN_INDICATOR = 15
 
         internal const val BACKGROUND_COLOR = -0x67000000

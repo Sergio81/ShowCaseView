@@ -66,13 +66,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .overrideXMessage(-40)
                 .build();
 
-        float h = 80;
+        float h = 0;
         GuideView guideView4 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text 4")
-                .setContentText("Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut ")
+                //.setContentText("Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut ")
                 .setTargetView(view4)
                 .setGravity(Gravity.Center)
-                .setPosition(Position.Top)
+                .setPosition(Position.Bottom)
 //                .overrideTargetWidth(200)
                 .overrideTargetHeight(h)
 //                .overrideXTarget(-200)

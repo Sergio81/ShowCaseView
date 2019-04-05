@@ -12,51 +12,50 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.RADIUS_SIZE_TARGET_RECT
 
 /**
  * Created by Mohammad Reza Eram  on 20/01/2018.
  */
 
 class GuideMessageView internal constructor(context: Context) : LinearLayout(context) {
-    internal var density: Float = 0.toFloat()
-
-    private val mPaint: Paint
-    internal val mRect: RectF
-
+    private val density: Float = context.resources.displayMetrics.density
+    private val mPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mTitleTextView: TextView
     private val mContentTextView: TextView
-
     private var location = IntArray(2)
+    private val padding = (10 * density).toInt()
+
+    internal val mRect: RectF = RectF()
 
     init {
-        density = context.resources.displayMetrics.density
         setWillNotDraw(false)
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER
-
-        mRect = RectF()
-        mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         mPaint.strokeCap = Paint.Cap.ROUND
 
-        val padding = (10 * density).toInt()
         val paddingBetween = (3 * density).toInt()
 
-        mTitleTextView = TextView(context)
-        mTitleTextView.setPadding(padding, padding, padding, paddingBetween)
-        mTitleTextView.gravity = Gravity.CENTER
-        mTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18f)
-        mTitleTextView.setTextColor(Color.BLACK)
+        mTitleTextView = TextView(context).apply {
+            setTextColor(Color.BLACK)
+            setPadding(padding, padding, padding, paddingBetween)
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18f)
+            gravity = Gravity.CENTER
+        }
+
         addView(mTitleTextView, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
-        mContentTextView = TextView(context)
-        mContentTextView.setTextColor(Color.BLACK)
-        mContentTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
-        mContentTextView.setPadding(padding, paddingBetween, padding, padding)
-        mContentTextView.gravity = Gravity.CENTER
+        mContentTextView = TextView(context).apply {
+            setTextColor(Color.BLACK)
+            setPadding(padding, paddingBetween, padding, padding)
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+            gravity = Gravity.CENTER
+        }
+
         addView(mContentTextView, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
-    fun updatePosition(x:Float, y:Float){
+    fun updatePosition(x: Float, y: Float) {
         this.x = x
         this.y = y
         mRect.set(x, y, x + width, y + height)
@@ -64,13 +63,19 @@ class GuideMessageView internal constructor(context: Context) : LinearLayout(con
 
     fun setTitle(title: String?) {
         if (title == null) {
+            mContentTextView.setPadding(padding, padding, padding, padding)
             removeView(mTitleTextView)
             return
         }
         mTitleTextView.text = title
     }
 
-    fun setContentText(content: String) {
+    fun setContentText(content: String?) {
+        if(content == null){
+            mTitleTextView.setPadding(padding, padding, padding, padding)
+            removeView(mContentTextView)
+            return
+        }
         mContentTextView.text = content
     }
 
@@ -105,16 +110,16 @@ class GuideMessageView internal constructor(context: Context) : LinearLayout(con
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-
         this.getLocationOnScreen(location)
-
 
         mRect.set(paddingLeft.toFloat(),
                 paddingTop.toFloat(),
                 (width - paddingRight).toFloat(),
                 (height - paddingBottom).toFloat())
 
-
-        canvas.drawRoundRect(mRect, 15f, 15f, mPaint)
+        canvas.drawRoundRect(mRect,
+                RADIUS_SIZE_TARGET_RECT,
+                RADIUS_SIZE_TARGET_RECT,
+                mPaint)
     }
 }
