@@ -14,7 +14,6 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.text.Spannable
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ import android.widget.FrameLayout
 
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity
-import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener
 import smartdevelop.ir.eram.showcaseviewlib.utils.PointF
 import smartdevelop.ir.eram.showcaseviewlib.utils.Position
 
@@ -36,6 +34,7 @@ import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.INDICATOR_
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.MESSAGE_VIEW_PADDING
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.RADIUS_SIZE_TARGET_RECT
 import smartdevelop.ir.eram.showcaseviewlib.GlobalVariables.Companion.SIZE_ANIMATION_DURATION
+import smartdevelop.ir.eram.showcaseviewlib.listener.OnDismissGuideListener
 
 /**
  * Created by Mohammad Reza Eram on 20/01/2018.
@@ -70,7 +69,7 @@ class GuideView private constructor(context: Context, private val target: View) 
 
     private var isPerformedAnimationSize = false
 
-    private var mGuideListener: GuideListener? = null
+    private var mGuideListener: OnDismissGuideListener? = null
     private var dismissType: DismissType? = null
     private var showSemitransparentBackground: Boolean? = true
 
@@ -211,7 +210,7 @@ class GuideView private constructor(context: Context, private val target: View) 
         ((context as Activity).window.decorView as ViewGroup).removeView(this)
         isShowing = false
         if (mGuideListener != null) {
-            mGuideListener!!.onDismiss(target)
+            mGuideListener!!.onDismissGuide(target)
         }
     }
 
@@ -361,7 +360,7 @@ class GuideView private constructor(context: Context, private val target: View) 
         private var contentSpan: Spannable? = null
         private var titleTypeFace: Typeface? = null
         private var contentTypeFace: Typeface? = null
-        private var guideListener: GuideListener? = null
+        private var guideListener: OnDismissGuideListener? = null
         private var titleTextSize: Int = 0
         private var contentTextSize: Int = 0
         private var lineIndicatorHeight: Float = 0.toFloat()
@@ -439,7 +438,7 @@ class GuideView private constructor(context: Context, private val target: View) 
          *
          * @param guideListener a listener for events
          */
-        fun setGuideListener(guideListener: GuideListener): Builder {
+        fun setGuideListener(guideListener: OnDismissGuideListener): Builder {
             this.guideListener = guideListener
             return this
         }

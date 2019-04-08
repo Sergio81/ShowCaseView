@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
+import smartdevelop.ir.eram.showcaseviewlib.GuideSequence;
 import smartdevelop.ir.eram.showcaseviewlib.GuideView;
 import smartdevelop.ir.eram.showcaseviewlib.GuideWrapperView;
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
@@ -69,26 +70,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         float h = 0;
         GuideView guideView4 = new GuideView.Builder(this)
                 .setTitle("Guide Title Text 4")
-                //.setContentText("Lorem ipsum dolor sit amet, \nconsectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut ")
                 .setTargetView(view4)
                 .setGravity(Gravity.Center)
                 .setPosition(Position.Bottom)
-//                .overrideTargetWidth(200)
                 .overrideTargetHeight(h)
-//                .overrideXTarget(-200)
                 .overrideYTarget(-h/2)
-                //.overrideYMessage(-230)
-//                .overrideXMessage(-70)
                 .build();
 
-        GuideWrapperView sad = new GuideWrapperView.Builder(this)
-                .setTargetGuideView(guideView2)
-                .setTargetGuideView(guideView1)
-                .setTargetGuideView(guideView3)
-                .setTargetGuideView(guideView4)
+        GuideView guideView5 = new GuideView.Builder(this)
+                .setTitle("Guide Title Text 2")
+                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+                .setDismissType(DismissType.Anywhere)
+                .setGravity(Gravity.Center)
+                .setTargetView(view2)
+                .setPosition(Position.Right)
+                .overrideYMessage(-60)
                 .build();
 
-        sad.show();
+        GuideView guideView6 = new GuideView.Builder(this)
+                .setTitle("Guide Title Text 3")
+                .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+                .setTargetView(view3)
+                .setGravity(Gravity.Center)
+                .setPosition(Position.Bottom)
+                .overrideYMessage(150)
+                .overrideXMessage(-40)
+                .build();
+
+        new GuideSequence.Builder()
+                .addSequence(new GuideWrapperView.Builder(this)
+                        .setTargetGuideView(guideView2)
+                        .setTargetGuideView(guideView1)
+                        .setTargetGuideView(guideView3)
+                        .setTargetGuideView(guideView4)
+                        .build())
+                .addSequence(new GuideWrapperView.Builder(this)
+                        .setTargetGuideView(guideView5)
+                        .build())
+                .addSequence(new GuideWrapperView.Builder(this)
+                        .setTargetGuideView(guideView6)
+                        .build())
+                .build(this)
+                .show();
     }
 
     @Override
